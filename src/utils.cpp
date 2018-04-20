@@ -8,19 +8,6 @@ M cosine_norm(M in_matrix, int j) {
     return i + j;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 namespace py = pybind11;
 
 PYBIND11_MODULE(cmake_example, m) {
