@@ -1,0 +1,6 @@
+[submodule "pybind11"]
+	path = pybind11
+	url = https://github.com/pybind/pybind11.git
+[submodule "armadillo-code"]
+	path = armadillo-code
+	url = https://github.com/conradsnicta/armadillo-code.git
