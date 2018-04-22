@@ -10,6 +10,8 @@ setup(name='mnnpy',
       packages=['mnnpy'],
       install_requires=[
           'numpy',
-          'anndata'
+          'anndata',
+          'scipy',
+          'sppy'
       ],
       zip_safe=False)
