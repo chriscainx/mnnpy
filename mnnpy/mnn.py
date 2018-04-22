@@ -1,13 +1,12 @@
 """."""
-import numpy as np
 from os import cpu_count
 from multiprocessing import Pool
+import numpy as np
 from anndata import AnnData
 from pandas import DataFrame
 from .utils import cosine_norm, l2_norm, scale_rows, find_mutual_nn, compute_correction
 from .utils import svd_internal, find_shared_subspace, get_bio_span, subtract_bio
 from .utils import adjust_shift_variance
-
 
 def mnn_correct(*datas, var_index=None, var_subset=None, batch_key=None, index_unique='-',
                 batch_categories=None, k=20, sigma=1, cos_norm_in=True, cos_norm_out=True,
@@ -46,16 +45,16 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key=None, index_u
                 adata.raw = adata.copy()
             if var_subset is not None:
                 adata = adata[:, var_subset]
-            adata.X = corrected
-            return adata
+            adata.X = corrected[0]
+            return adata, corrected[1], corrected[2]
         else:
-            for adata, new_matrix in zip(datas, corrected):
+            for adata, new_matrix in zip(datas, corrected[0]):
                 if save_raw:
                     adata.raw = adata.copy()
                 if var_subset is not None:
                     adata = adata[:, var_subset]
                 adata.X = new_matrix
-            return datas
+            return datas, corrected[1], corrected[2]
     #------------------------------------------------------------
     # adatas are ndarrays, return a ndarray
     # by definition ndarrays don't have colnames
@@ -121,7 +120,7 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key=None, index_u
                                            sigma)
         if not same_set:
             correction_out = compute_correction(ref_batch_out, new_batch_out, mnn_ref, mnn_new,
-                                           new_batch_in, sigma)
+                                                new_batch_in, sigma)
         if compute_angle:
             ref_centred = ref_batch_in - np.mean(ref_batch_in, axis=0)
             ref_basis = svd_internal(ref_centred.T, nu=2, svd_mode=svd_mode, **kwargs)
@@ -134,24 +133,25 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key=None, index_u
         if svd_dim is not None and svd_dim != 0:
             mnn_ref_u = np.unique(mnn_ref)
             mnn_new_u = np.unique(mnn_new)
-            in_span_ref = get_bio_span(ref_batch_in[mnn_ref_u, :], ndim=svd_dim, svd_dim=svd_dim,
+            in_span_ref = get_bio_span(ref_batch_in[mnn_ref_u, :], ndim=svd_dim, svd_mode=svd_mode,
                                        **kwargs)
-            in_span_new = get_bio_span(new_batch_in[mnn_new_u, :], ndim=svd_dim, svd_dim=svd_dim,
+            in_span_new = get_bio_span(new_batch_in[mnn_new_u, :], ndim=svd_dim, svd_mode=svd_mode,
                                        **kwargs)
-            correction_in = subtract_bio(correction_in, in_span_ref, in_span_new)
+            correction_in = subtract_bio(in_span_ref, in_span_new, correction=correction_in)
             if not same_set:
-                out_span_ref = get_bio_span(ref_batch_out[mnn_ref_u, :], ndim=svd_dim, 
-                                            svd_dim=svd_dim, **kwargs)
+                out_span_ref = get_bio_span(ref_batch_out[mnn_ref_u, :], ndim=svd_dim,
+                                            svd_mode=svd_mode, var_subset=var_subset, **kwargs)
                 out_span_new = get_bio_span(new_batch_out[mnn_new_u, :], ndim=svd_dim,
-                                            svd_dim=svd_dim, **kwargs)
-                correction_out = subtract_bio(correction_out, out_span_ref, out_span_new)
+                                            svd_mode=svd_mode, var_subset=var_subset, **kwargs)
+                correction_out = subtract_bio(out_span_ref, out_span_new, correction=correction_out,
+                                              var_subset=var_subset)
         #------------------------
         if var_adj:
-            correction_in = adjust_shift_variance(ref_batch_in, new_batch_in, correction_in, 
+            correction_in = adjust_shift_variance(ref_batch_in, new_batch_in, correction_in,
                                                   sigma=sigma)
             if not same_set:
                 correction_out = adjust_shift_variance(ref_batch_out, new_batch_out, correction_out,
-                                                       sigma=sigma)
+                                                       sigma=sigma, var_subset=var_subset)
         #------------------------
         new_batch_in = new_batch_in + correction_in
         ref_batch_in = np.concatenate((ref_batch_in, new_batch_in))
@@ -161,7 +161,8 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key=None, index_u
             new_batch_out = new_batch_out + correction_out
             ref_batch_out = np.concatenate((ref_batch_out, new_batch_out))
             res_container.append(new_batch_out)
-        mnn_container.append(DataFrame(np.concatenate(mnn_new, mnn_ref, original_batch[mnn_ref])))
+        mnn_container.append(DataFrame(np.concatenate(mnn_new, mnn_ref, original_batch[mnn_ref]),
+                                       columns=['new cell', 'ref cell', 'original batch']))
         original_batch += [target] * new_batch_in.shape[0]
     # reflow containers
     reflow_order = np.zeros(n_batch)
@@ -173,4 +174,3 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key=None, index_u
     if do_concatenate:
         results_ = np.concatenate(*results_, axis=0)
     return results_, mnn_list_, angle_list_
-
