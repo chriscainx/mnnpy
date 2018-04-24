@@ -12,6 +12,7 @@ setup(name='mnnpy',
           'numpy',
           'anndata',
           'scipy',
-          'sppy'
+          'pandas',
+          'numba'
       ],
       zip_safe=False)
