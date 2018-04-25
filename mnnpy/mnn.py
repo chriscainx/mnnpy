@@ -11,7 +11,7 @@ from .utils import adjust_shift_variance
 
 
 def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', index_unique='-',
-                batch_categories=None, k=20, sigma=1, cos_norm_in=True, cos_norm_out=True,
+                batch_categories=None, k=20, sigma=1., cos_norm_in=True, cos_norm_out=True,
                 svd_dim=None, var_adj=True, compute_angle=False, mnn_order=None, svd_mode='rsvd',
                 do_concatenate=True, save_raw=False, n_jobs=None, **kwargs):
     if len(datas) < 2:
@@ -95,7 +95,7 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
         mnn_ref, mnn_new = find_mutual_nn(data1=ref_batch_in, data2=new_batch_in, k1=k, k2=k,
                                           n_jobs=n_jobs)
         print('  Computing correction vectors...')
-        correction_in = compute_correction(ref_batch_in, new_batch_in, mnn_ref, mnn_new, None,
+        correction_in = compute_correction(ref_batch_in, new_batch_in, mnn_ref, mnn_new, new_batch_in,
                                            sigma)
         if not same_set:
             correction_out = compute_correction(ref_batch_out, new_batch_out, mnn_ref, mnn_new,
@@ -110,7 +110,7 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
             angle_container.append(angle_out)
         # ------------------------
         if svd_dim is not None and svd_dim != 0:
-            print('  Removing noise...')
+            print('  Removing components...')
             mnn_ref_u = np.unique(mnn_ref)
             mnn_new_u = np.unique(mnn_new)
             in_span_ref = get_bio_span(ref_batch_in[mnn_ref_u, :], ndim=svd_dim, svd_mode=svd_mode,
