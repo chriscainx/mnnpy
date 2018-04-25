@@ -1,1 +1,1 @@
-../irlbpy/irlb/irlb.py
+./irlbpy/irlbpy/irlb.py
