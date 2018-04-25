@@ -94,3 +94,9 @@ It is recommended to pass log-transformed matrices/AnnData objects to `mnn_corre
 ## Screenshot
 
 ![](./docs/screen.png)
+
+## Credits
+
+Algorithm is from Laleh Haghverdi and Aaron T. L. Lun.
+
+.irlb is copied from airysen/irlbpy, couldn't figure out how to make it a symbolic link from the submodule though😂
