@@ -5,7 +5,7 @@ from functools import partial
 import numpy as np
 from anndata import AnnData
 from pandas import DataFrame
-from .utils import transform_input_data, l2_norm, scale_rows, find_mutual_nn, compute_correction
+from .utils import transform_input_data, find_mutual_nn, compute_correction
 from .utils import svd_internal, find_shared_subspace, get_bio_span, subtract_bio
 from .utils import adjust_shift_variance
 
@@ -16,8 +16,6 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
                 do_concatenate=True, save_raw=False, n_jobs=None, **kwargs):
     if len(datas) < 2:
         return datas
-    # Rows are cells, since by default NumPy is row-majored (C mode).
-    # if Armadillo is to be integrated, will have to change to F mode
     n_batch = len(datas)
     if mnn_order is not None:
         if sorted(mnn_order) != list(range(n_batch)):
@@ -32,7 +30,6 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
                 raise ValueError('The AnnData objects have inconsistent number of vars.')
         if var_subset is not None and set(adata_vars) == set(var_subset):
             var_subset = None
-        # return a tuple of matrices if do_concatenate==False, else a combined matrix
         corrected = mnn_correct(*(adata.X for adata in datas), var_index=adata_vars,
                                 var_subset=var_subset, k=k, sigma=sigma, cos_norm_in=cos_norm_in,
                                 cos_norm_out=cos_norm_out, svd_dim=svd_dim, var_adj=var_adj,
@@ -40,7 +37,6 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
                                 svd_mode=svd_mode, do_concatenate=do_concatenate, **kwargs)
         print('Packing AnnData object...')
         if do_concatenate:
-            # concatenate and replace X with the combined matrix
             adata = AnnData.concatenate(*datas, batch_key=batch_key,
                                         batch_categories=batch_categories,
                                         index_unique=index_unique)
@@ -57,8 +53,6 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
             print('Done.')
             return datas, corrected[1], corrected[2]
     # ------------------------------------------------------------
-    # adatas are ndarrays, return a ndarray
-    # by definition ndarrays don't have colnames
     if n_jobs is None:
         n_jobs = cpu_count()
     n_cols = datas[0].shape[1]
@@ -68,6 +62,7 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
         if datas[i].shape[1] != n_cols:
             raise ValueError('The input matrices have inconsistent number of columns.')
     # ------------------------------------------------------------
+    print('Performing cosine normalization...')
     in_batches, out_batches, var_subset, same_set = transform_input_data(datas, cos_norm_in, cos_norm_out, var_index,
                                                                          var_subset, n_jobs)
     if mnn_order is None:
@@ -76,8 +71,6 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
     ref_batch_in = in_batches[ref]
     if not same_set:
         ref_batch_out = out_batches[ref]
-    # prepare a container for results
-    # add results by res_container.append()
     res_container = [out_batches[ref]]
     mnn_container = [0]
     angle_container = [0]
@@ -145,7 +138,6 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
         mnn_container.append(DataFrame(
             {'new cell': mnn_new, 'ref cell': mnn_ref, 'original batch': [original_batch[mnn] for mnn in mnn_ref]}))
         original_batch += [target] * new_batch_in.shape[0]
-    # reflow containers
     print('MNN correction complete. Gathering output...')
     reflow_order = [0] * n_batch
     for i in range(n_batch):

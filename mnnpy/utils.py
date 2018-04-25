@@ -66,9 +66,7 @@ def transform_input_data(datas, cos_norm_in, cos_norm_out, var_index, var_subset
 
 @jit((float32[:,:], float32[:,:], int8, int8, int8))
 def find_mutual_nn(data1, data2, k1, k2, n_jobs):
-    # here nrows==nrows(data2)
     k_index_1 = cKDTree(data1).query(x=data2, k=k1, n_jobs=n_jobs)[1]
-    # here nrows==nrows(data1)
     k_index_2 = cKDTree(data2).query(x=data1, k=k2, n_jobs=n_jobs)[1]
     mutual_1 = []
     mutual_2 = []
@@ -109,7 +107,6 @@ def svd_internal(mat, nu, svd_mode, **kwargs):
     raise ValueError('The svd_mode must be one of \'rsvd\', \'svd\', \'irlb\'.')
 
 
-@jit
 def find_shared_subspace(mat1, mat2, sin_thres=0.05, cos_thres=1 / math.sqrt(2), mat2_vec=False,
                          assume_orthonomal=False, get_angle=True):
     if mat2_vec:
@@ -134,7 +131,6 @@ def find_shared_subspace(mat1, mat2, sin_thres=0.05, cos_thres=1 / math.sqrt(2),
     return 180 * theta / math.pi, shared
 
 
-@jit
 def get_bio_span(exprs, ndim, svd_mode, var_subset=None, **kwargs):
     centred = exprs - np.mean(exprs, axis=0)
     if var_subset is not None:
@@ -155,7 +151,6 @@ def get_bio_span(exprs, ndim, svd_mode, var_subset=None, **kwargs):
     return output
 
 
-@jit
 def subtract_bio(*spans, correction, var_subset=None):
     for span in spans:
         if var_subset is None:
@@ -166,7 +161,7 @@ def subtract_bio(*spans, correction, var_subset=None):
         correction -= bio_comp
     return correction
 
-@jit
+
 def adjust_shift_variance(data1, data2, correction, sigma, n_jobs, var_subset=None):
     if var_subset is not None:
         vect = correction[:, var_subset]
