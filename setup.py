@@ -1,4 +1,9 @@
 from setuptools import setup
+from pathlib import Path
+
+req_path = Path('requirements.txt')
+with req_path.open() as requirements:
+    requires = [l.strip() for l in requirements]
 
 setup(name='mnnpy',
       version='0.1.0',
@@ -9,17 +14,11 @@ setup(name='mnnpy',
       author_email='kbxchrs@gmail.com',
       license='BSD 3',
       packages=['mnnpy'],
-      install_requires=[
-          'numpy',
-          'anndata',
-          'scipy',
-          'pandas',
-          'numba'
-      ],
+      install_requires=requires,
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Science/Research',
-          'Topic :: Software Development :: Libraries :: Python Modules',
+          'Topic :: Scientific/Engineering :: Bio-Informatics',
           'License :: OSI Approved :: BSD License',
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
