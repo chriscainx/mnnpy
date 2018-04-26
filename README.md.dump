@@ -74,7 +74,7 @@ Done.
 ```python
 adata
 ```
-> AnnData object with n_obs × n_vars = 20270 × 33694  
+> AnnData object with n_obs 脳 n_vars = 20270 脳 33694  
     obs: 'n_genes', 'percent_mito', 'n_counts', 'Sample', 'Donor', 'Tissue', 'batch'  
     var: 'gene_ids-0', 'n_cells-0', 'gene_ids-1', 'n_cells-1', 'gene_ids-2', 'n_cells-2'  
 ```python
@@ -100,4 +100,4 @@ It is recommended to pass log-transformed matrices/AnnData objects to `mnn_corre
 
 Algorithm is from Laleh Haghverdi and Aaron T. L. Lun.
 
-.irlb is copied from airysen/irlbpy, couldn't figure out how to make it a symbolic link from the submodule though😂
+.irlb is copied from airysen/irlbpy, couldn't figure out how to make it a symbolic link from the submodule though馃槀
