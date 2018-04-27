@@ -729,7 +729,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "_utils.pyx",
+  "mnnpy/_utils.pyx",
   "stringsource",
 };
 /* MemviewSliceStruct.proto */
@@ -1443,12 +1443,22 @@ static int __pyx_slices_overlap(__Pyx_memviewslice *slice1,
 /* Capsule.proto */
 static CYTHON_INLINE PyObject *__pyx_capsule_create(void *p, const char *sig);
 
+/* Print.proto */
+static int __Pyx_Print(PyObject*, PyObject *, int);
+#if CYTHON_COMPILING_IN_PYPY || PY_MAJOR_VERSION >= 3
+static PyObject* __pyx_print = 0;
+static PyObject* __pyx_print_kwargs = 0;
+#endif
+
 /* MemviewSliceCopyTemplate.proto */
 static __Pyx_memviewslice
 __pyx_memoryview_copy_new_contig(const __Pyx_memviewslice *from_mvs,
                                  const char *mode, int ndim,
                                  size_t sizeof_dtype, int contig_flag,
                                  int dtype_is_object);
+
+/* PrintOne.proto */
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
@@ -1593,10 +1603,12 @@ static const char __pyx_k_O[] = "O";
 static const char __pyx_k_c[] = "c";
 static const char __pyx_k_id[] = "id";
 static const char __pyx_k_np[] = "np";
+static const char __pyx_k_end[] = "end";
 static const char __pyx_k_new[] = "__new__";
 static const char __pyx_k_obj[] = "obj";
 static const char __pyx_k_base[] = "base";
 static const char __pyx_k_dict[] = "__dict__";
+static const char __pyx_k_file[] = "file";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_mode[] = "mode";
 static const char __pyx_k_name[] = "name";
@@ -1612,6 +1624,7 @@ static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_error[] = "error";
 static const char __pyx_k_flags[] = "flags";
 static const char __pyx_k_numpy[] = "numpy";
+static const char __pyx_k_print[] = "print";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
 static const char __pyx_k_start[] = "start";
@@ -1659,6 +1672,7 @@ static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
+static const char __pyx_k_Using_Cython_extension[] = "Using Cython extension!";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
 static const char __pyx_k_Cannot_index_with_type_s[] = "Cannot index with type '%s'";
@@ -1696,6 +1710,7 @@ static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_PickleError;
 static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_kp_s_Unable_to_convert_item_to_object;
+static PyObject *__pyx_kp_s_Using_Cython_extension;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_View_MemoryView;
 static PyObject *__pyx_n_s_allocate_buffer;
@@ -1711,8 +1726,10 @@ static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_dtype_is_object;
 static PyObject *__pyx_n_s_encode;
+static PyObject *__pyx_n_s_end;
 static PyObject *__pyx_n_s_enumerate;
 static PyObject *__pyx_n_s_error;
+static PyObject *__pyx_n_s_file;
 static PyObject *__pyx_n_s_flags;
 static PyObject *__pyx_n_s_float32;
 static PyObject *__pyx_n_s_format;
@@ -1737,6 +1754,7 @@ static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_pickle;
+static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
 static PyObject *__pyx_n_s_pyx_getbuffer;
@@ -1851,8 +1869,8 @@ static PyObject *__pyx_codeobj__28;
  * @cython.wraparound(False)   # Deactivate negative indexing.
  * 
  * cdef float adjust_s_variance(float [:, ::1] data1, float [:, ::1] data2, float [:] curcell, float [:] curvect, float sigma):             # <<<<<<<<<<<<<<
+ *     print('Using Cython extension!')
  *     cdef Py_ssize_t i, j
- *     cdef Py_ssize_t n_c1  = data1.shape[0]
  */
 
 static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v_data1, __Pyx_memviewslice __pyx_v_data2, __Pyx_memviewslice __pyx_v_curcell, __Pyx_memviewslice __pyx_v_curvect, float __pyx_v_sigma) {
@@ -1920,8 +1938,17 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   Py_ssize_t __pyx_t_37;
   __Pyx_RefNannySetupContext("adjust_s_variance", 0);
 
-  /* "mnnpy/_utils.pyx":11
+  /* "mnnpy/_utils.pyx":10
+ * 
  * cdef float adjust_s_variance(float [:, ::1] data1, float [:, ::1] data2, float [:] curcell, float [:] curvect, float sigma):
+ *     print('Using Cython extension!')             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t i, j
+ *     cdef Py_ssize_t n_c1  = data1.shape[0]
+ */
+  if (__Pyx_PrintOne(0, __pyx_kp_s_Using_Cython_extension) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
+
+  /* "mnnpy/_utils.pyx":12
+ *     print('Using Cython extension!')
  *     cdef Py_ssize_t i, j
  *     cdef Py_ssize_t n_c1  = data1.shape[0]             # <<<<<<<<<<<<<<
  *     cdef Py_ssize_t n_c2  = data2.shape[0]
@@ -1929,7 +1956,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_n_c1 = (__pyx_v_data1.shape[0]);
 
-  /* "mnnpy/_utils.pyx":12
+  /* "mnnpy/_utils.pyx":13
  *     cdef Py_ssize_t i, j
  *     cdef Py_ssize_t n_c1  = data1.shape[0]
  *     cdef Py_ssize_t n_c2  = data2.shape[0]             # <<<<<<<<<<<<<<
@@ -1938,7 +1965,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_n_c2 = (__pyx_v_data2.shape[0]);
 
-  /* "mnnpy/_utils.pyx":13
+  /* "mnnpy/_utils.pyx":14
  *     cdef Py_ssize_t n_c1  = data1.shape[0]
  *     cdef Py_ssize_t n_c2  = data2.shape[0]
  *     cdef Py_ssize_t n_v   = data2.shape[1]             # <<<<<<<<<<<<<<
@@ -1947,7 +1974,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_n_v = (__pyx_v_data2.shape[1]);
 
-  /* "mnnpy/_utils.pyx":14
+  /* "mnnpy/_utils.pyx":15
  *     cdef Py_ssize_t n_c2  = data2.shape[0]
  *     cdef Py_ssize_t n_v   = data2.shape[1]
  *     cdef float prob2      = 0             # <<<<<<<<<<<<<<
@@ -1956,7 +1983,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_prob2 = 0.0;
 
-  /* "mnnpy/_utils.pyx":15
+  /* "mnnpy/_utils.pyx":16
  *     cdef Py_ssize_t n_v   = data2.shape[1]
  *     cdef float prob2      = 0
  *     cdef float totalprob2 = 0             # <<<<<<<<<<<<<<
@@ -1965,7 +1992,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_totalprob2 = 0.0;
 
-  /* "mnnpy/_utils.pyx":16
+  /* "mnnpy/_utils.pyx":17
  *     cdef float prob2      = 0
  *     cdef float totalprob2 = 0
  *     cdef float curproj    = 0             # <<<<<<<<<<<<<<
@@ -1974,7 +2001,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_curproj = 0.0;
 
-  /* "mnnpy/_utils.pyx":17
+  /* "mnnpy/_utils.pyx":18
  *     cdef float totalprob2 = 0
  *     cdef float curproj    = 0
  *     cdef float l2_norm    = 0             # <<<<<<<<<<<<<<
@@ -1983,7 +2010,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_l2_norm = 0.0;
 
-  /* "mnnpy/_utils.pyx":18
+  /* "mnnpy/_utils.pyx":19
  *     cdef float curproj    = 0
  *     cdef float l2_norm    = 0
  *     for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -1994,7 +2021,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_j = __pyx_t_2;
 
-    /* "mnnpy/_utils.pyx":19
+    /* "mnnpy/_utils.pyx":20
  *     cdef float l2_norm    = 0
  *     for j in range(n_v):
  *         l2_norm += curvect[j] * curvect[j]             # <<<<<<<<<<<<<<
@@ -2006,7 +2033,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_v_l2_norm = (__pyx_v_l2_norm + ((*((float *) ( /* dim=0 */ (__pyx_v_curvect.data + __pyx_t_3 * __pyx_v_curvect.strides[0]) ))) * (*((float *) ( /* dim=0 */ (__pyx_v_curvect.data + __pyx_t_4 * __pyx_v_curvect.strides[0]) )))));
   }
 
-  /* "mnnpy/_utils.pyx":20
+  /* "mnnpy/_utils.pyx":21
  *     for j in range(n_v):
  *         l2_norm += curvect[j] * curvect[j]
  *     l2_norm = sqrt(l2_norm)             # <<<<<<<<<<<<<<
@@ -2015,7 +2042,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_l2_norm = sqrt(__pyx_v_l2_norm);
 
-  /* "mnnpy/_utils.pyx":21
+  /* "mnnpy/_utils.pyx":22
  *         l2_norm += curvect[j] * curvect[j]
  *     l2_norm = sqrt(l2_norm)
  *     cdef float *grad = <float *>malloc(n_v * sizeof(float))             # <<<<<<<<<<<<<<
@@ -2024,7 +2051,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_grad = ((float *)malloc((__pyx_v_n_v * (sizeof(float)))));
 
-  /* "mnnpy/_utils.pyx":22
+  /* "mnnpy/_utils.pyx":23
  *     l2_norm = sqrt(l2_norm)
  *     cdef float *grad = <float *>malloc(n_v * sizeof(float))
  *     for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2035,7 +2062,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_j = __pyx_t_2;
 
-    /* "mnnpy/_utils.pyx":23
+    /* "mnnpy/_utils.pyx":24
  *     cdef float *grad = <float *>malloc(n_v * sizeof(float))
  *     for j in range(n_v):
  *         grad[j] = curvect[j] / l2_norm             # <<<<<<<<<<<<<<
@@ -2046,11 +2073,11 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_t_6 = (*((float *) ( /* dim=0 */ (__pyx_v_curvect.data + __pyx_t_5 * __pyx_v_curvect.strides[0]) )));
     if (unlikely(__pyx_v_l2_norm == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 23, __pyx_L1_error)
+      __PYX_ERR(0, 24, __pyx_L1_error)
     }
     (__pyx_v_grad[__pyx_v_j]) = (__pyx_t_6 / __pyx_v_l2_norm);
 
-    /* "mnnpy/_utils.pyx":24
+    /* "mnnpy/_utils.pyx":25
  *     for j in range(n_v):
  *         grad[j] = curvect[j] / l2_norm
  *         curproj += grad[j] * curcell[j]             # <<<<<<<<<<<<<<
@@ -2061,21 +2088,21 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_v_curproj = (__pyx_v_curproj + ((__pyx_v_grad[__pyx_v_j]) * (*((float *) ( /* dim=0 */ (__pyx_v_curcell.data + __pyx_t_7 * __pyx_v_curcell.strides[0]) )))));
   }
 
-  /* "mnnpy/_utils.pyx":25
+  /* "mnnpy/_utils.pyx":26
  *         grad[j] = curvect[j] / l2_norm
  *         curproj += grad[j] * curcell[j]
  *     distance1 = np.zeros((n_c1, 2), dtype=np.float32)             # <<<<<<<<<<<<<<
  *     cdef float [:, :] d1 = distance1
  *     cdef float sameproj
  */
-  __pyx_t_8 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_zeros); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_zeros); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = PyInt_FromSsize_t(__pyx_v_n_c1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_8 = PyInt_FromSsize_t(__pyx_v_n_c1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_10 = PyTuple_New(2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_10 = PyTuple_New(2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_GIVEREF(__pyx_t_8);
   PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_8);
@@ -2083,21 +2110,21 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_10, 1, __pyx_int_2);
   __pyx_t_8 = 0;
-  __pyx_t_8 = PyTuple_New(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_8 = PyTuple_New(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_GIVEREF(__pyx_t_10);
   PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_10);
   __pyx_t_10 = 0;
-  __pyx_t_10 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_float32); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_float32); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  if (PyDict_SetItem(__pyx_t_10, __pyx_n_s_dtype, __pyx_t_12) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_10, __pyx_n_s_dtype, __pyx_t_12) < 0) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-  __pyx_t_12 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_8, __pyx_t_10); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_8, __pyx_t_10); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -2105,7 +2132,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   __pyx_v_distance1 = __pyx_t_12;
   __pyx_t_12 = 0;
 
-  /* "mnnpy/_utils.pyx":26
+  /* "mnnpy/_utils.pyx":27
  *         curproj += grad[j] * curcell[j]
  *     distance1 = np.zeros((n_c1, 2), dtype=np.float32)
  *     cdef float [:, :] d1 = distance1             # <<<<<<<<<<<<<<
@@ -2113,12 +2140,12 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  *     cdef float samedist
  */
   __pyx_t_13 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(__pyx_v_distance1);
-  if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 26, __pyx_L1_error)
+  if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 27, __pyx_L1_error)
   __pyx_v_d1 = __pyx_t_13;
   __pyx_t_13.memview = NULL;
   __pyx_t_13.data = NULL;
 
-  /* "mnnpy/_utils.pyx":30
+  /* "mnnpy/_utils.pyx":31
  *     cdef float samedist
  *     cdef float dist_scale
  *     cdef float *dist_working = <float *>malloc(n_v * sizeof(float))             # <<<<<<<<<<<<<<
@@ -2127,7 +2154,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_dist_working = ((float *)malloc((__pyx_v_n_v * (sizeof(float)))));
 
-  /* "mnnpy/_utils.pyx":32
+  /* "mnnpy/_utils.pyx":33
  *     cdef float *dist_working = <float *>malloc(n_v * sizeof(float))
  *     cdef float sameprob
  *     for i in range(n_c2):             # <<<<<<<<<<<<<<
@@ -2138,7 +2165,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_i = __pyx_t_2;
 
-    /* "mnnpy/_utils.pyx":33
+    /* "mnnpy/_utils.pyx":34
  *     cdef float sameprob
  *     for i in range(n_c2):
  *         sameproj   = 0             # <<<<<<<<<<<<<<
@@ -2147,7 +2174,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
     __pyx_v_sameproj = 0.0;
 
-    /* "mnnpy/_utils.pyx":34
+    /* "mnnpy/_utils.pyx":35
  *     for i in range(n_c2):
  *         sameproj   = 0
  *         samedist   = 0             # <<<<<<<<<<<<<<
@@ -2156,7 +2183,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
     __pyx_v_samedist = 0.0;
 
-    /* "mnnpy/_utils.pyx":35
+    /* "mnnpy/_utils.pyx":36
  *         sameproj   = 0
  *         samedist   = 0
  *         dist_scale = 0             # <<<<<<<<<<<<<<
@@ -2165,7 +2192,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
     __pyx_v_dist_scale = 0.0;
 
-    /* "mnnpy/_utils.pyx":36
+    /* "mnnpy/_utils.pyx":37
  *         samedist   = 0
  *         dist_scale = 0
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2176,7 +2203,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
       __pyx_v_j = __pyx_t_15;
 
-      /* "mnnpy/_utils.pyx":37
+      /* "mnnpy/_utils.pyx":38
  *         dist_scale = 0
  *         for j in range(n_v):
  *             sameproj += grad[j] * data2[i, j]             # <<<<<<<<<<<<<<
@@ -2187,7 +2214,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_t_17 = __pyx_v_j;
       __pyx_v_sameproj = (__pyx_v_sameproj + ((__pyx_v_grad[__pyx_v_j]) * (*((float *) ( /* dim=1 */ ((char *) (((float *) ( /* dim=0 */ (__pyx_v_data2.data + __pyx_t_16 * __pyx_v_data2.strides[0]) )) + __pyx_t_17)) )))));
 
-      /* "mnnpy/_utils.pyx":38
+      /* "mnnpy/_utils.pyx":39
  *         for j in range(n_v):
  *             sameproj += grad[j] * data2[i, j]
  *             dist_working[j] = curcell[j] - data2[i, j]             # <<<<<<<<<<<<<<
@@ -2200,7 +2227,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       (__pyx_v_dist_working[__pyx_v_j]) = ((*((float *) ( /* dim=0 */ (__pyx_v_curcell.data + __pyx_t_18 * __pyx_v_curcell.strides[0]) ))) - (*((float *) ( /* dim=1 */ ((char *) (((float *) ( /* dim=0 */ (__pyx_v_data2.data + __pyx_t_19 * __pyx_v_data2.strides[0]) )) + __pyx_t_20)) ))));
     }
 
-    /* "mnnpy/_utils.pyx":39
+    /* "mnnpy/_utils.pyx":40
  *             sameproj += grad[j] * data2[i, j]
  *             dist_working[j] = curcell[j] - data2[i, j]
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2211,7 +2238,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
       __pyx_v_j = __pyx_t_15;
 
-      /* "mnnpy/_utils.pyx":40
+      /* "mnnpy/_utils.pyx":41
  *             dist_working[j] = curcell[j] - data2[i, j]
  *         for j in range(n_v):
  *             dist_scale += dist_working[j] * grad[j]             # <<<<<<<<<<<<<<
@@ -2221,7 +2248,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_v_dist_scale = (__pyx_v_dist_scale + ((__pyx_v_dist_working[__pyx_v_j]) * (__pyx_v_grad[__pyx_v_j])));
     }
 
-    /* "mnnpy/_utils.pyx":41
+    /* "mnnpy/_utils.pyx":42
  *         for j in range(n_v):
  *             dist_scale += dist_working[j] * grad[j]
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2232,7 +2259,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
       __pyx_v_j = __pyx_t_15;
 
-      /* "mnnpy/_utils.pyx":42
+      /* "mnnpy/_utils.pyx":43
  *             dist_scale += dist_working[j] * grad[j]
  *         for j in range(n_v):
  *             dist_working[j] -= grad[j] * dist_scale             # <<<<<<<<<<<<<<
@@ -2242,7 +2269,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_t_21 = __pyx_v_j;
       (__pyx_v_dist_working[__pyx_t_21]) = ((__pyx_v_dist_working[__pyx_t_21]) - ((__pyx_v_grad[__pyx_v_j]) * __pyx_v_dist_scale));
 
-      /* "mnnpy/_utils.pyx":43
+      /* "mnnpy/_utils.pyx":44
  *         for j in range(n_v):
  *             dist_working[j] -= grad[j] * dist_scale
  *             samedist += dist_working[j] * dist_working[j]             # <<<<<<<<<<<<<<
@@ -2252,7 +2279,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_v_samedist = (__pyx_v_samedist + ((__pyx_v_dist_working[__pyx_v_j]) * (__pyx_v_dist_working[__pyx_v_j])));
     }
 
-    /* "mnnpy/_utils.pyx":44
+    /* "mnnpy/_utils.pyx":45
  *             dist_working[j] -= grad[j] * dist_scale
  *             samedist += dist_working[j] * dist_working[j]
  *         sameprob = exp(-samedist / sigma)             # <<<<<<<<<<<<<<
@@ -2262,11 +2289,11 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_t_6 = (-__pyx_v_samedist);
     if (unlikely(__pyx_v_sigma == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 44, __pyx_L1_error)
+      __PYX_ERR(0, 45, __pyx_L1_error)
     }
     __pyx_v_sameprob = exp((__pyx_t_6 / __pyx_v_sigma));
 
-    /* "mnnpy/_utils.pyx":45
+    /* "mnnpy/_utils.pyx":46
  *             samedist += dist_working[j] * dist_working[j]
  *         sameprob = exp(-samedist / sigma)
  *         if sameproj <= curproj:             # <<<<<<<<<<<<<<
@@ -2276,7 +2303,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_t_22 = ((__pyx_v_sameproj <= __pyx_v_curproj) != 0);
     if (__pyx_t_22) {
 
-      /* "mnnpy/_utils.pyx":46
+      /* "mnnpy/_utils.pyx":47
  *         sameprob = exp(-samedist / sigma)
  *         if sameproj <= curproj:
  *             prob2 += sameprob             # <<<<<<<<<<<<<<
@@ -2285,7 +2312,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
       __pyx_v_prob2 = (__pyx_v_prob2 + __pyx_v_sameprob);
 
-      /* "mnnpy/_utils.pyx":45
+      /* "mnnpy/_utils.pyx":46
  *             samedist += dist_working[j] * dist_working[j]
  *         sameprob = exp(-samedist / sigma)
  *         if sameproj <= curproj:             # <<<<<<<<<<<<<<
@@ -2294,7 +2321,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
     }
 
-    /* "mnnpy/_utils.pyx":47
+    /* "mnnpy/_utils.pyx":48
  *         if sameproj <= curproj:
  *             prob2 += sameprob
  *         totalprob2 += sameprob             # <<<<<<<<<<<<<<
@@ -2304,7 +2331,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_v_totalprob2 = (__pyx_v_totalprob2 + __pyx_v_sameprob);
   }
 
-  /* "mnnpy/_utils.pyx":48
+  /* "mnnpy/_utils.pyx":49
  *             prob2 += sameprob
  *         totalprob2 += sameprob
  *     prob2 /= totalprob2             # <<<<<<<<<<<<<<
@@ -2313,11 +2340,11 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   if (unlikely(__pyx_v_totalprob2 == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 48, __pyx_L1_error)
+    __PYX_ERR(0, 49, __pyx_L1_error)
   }
   __pyx_v_prob2 = (__pyx_v_prob2 / __pyx_v_totalprob2);
 
-  /* "mnnpy/_utils.pyx":49
+  /* "mnnpy/_utils.pyx":50
  *         totalprob2 += sameprob
  *     prob2 /= totalprob2
  *     cdef float totalprob1 = 0             # <<<<<<<<<<<<<<
@@ -2326,7 +2353,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_totalprob1 = 0.0;
 
-  /* "mnnpy/_utils.pyx":52
+  /* "mnnpy/_utils.pyx":53
  *     cdef float otherdist
  *     cdef float weight
  *     for i in range(n_c1):             # <<<<<<<<<<<<<<
@@ -2337,7 +2364,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_i = __pyx_t_2;
 
-    /* "mnnpy/_utils.pyx":53
+    /* "mnnpy/_utils.pyx":54
  *     cdef float weight
  *     for i in range(n_c1):
  *         otherdist  = 0             # <<<<<<<<<<<<<<
@@ -2346,7 +2373,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
     __pyx_v_otherdist = 0.0;
 
-    /* "mnnpy/_utils.pyx":54
+    /* "mnnpy/_utils.pyx":55
  *     for i in range(n_c1):
  *         otherdist  = 0
  *         dist_scale = 0             # <<<<<<<<<<<<<<
@@ -2355,7 +2382,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
     __pyx_v_dist_scale = 0.0;
 
-    /* "mnnpy/_utils.pyx":55
+    /* "mnnpy/_utils.pyx":56
  *         otherdist  = 0
  *         dist_scale = 0
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2366,7 +2393,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
       __pyx_v_j = __pyx_t_15;
 
-      /* "mnnpy/_utils.pyx":56
+      /* "mnnpy/_utils.pyx":57
  *         dist_scale = 0
  *         for j in range(n_v):
  *             d1[i, 0] += grad[j] * data1[i, j]             # <<<<<<<<<<<<<<
@@ -2379,7 +2406,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_t_26 = 0;
       *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_d1.data + __pyx_t_25 * __pyx_v_d1.strides[0]) ) + __pyx_t_26 * __pyx_v_d1.strides[1]) )) += ((__pyx_v_grad[__pyx_v_j]) * (*((float *) ( /* dim=1 */ ((char *) (((float *) ( /* dim=0 */ (__pyx_v_data1.data + __pyx_t_23 * __pyx_v_data1.strides[0]) )) + __pyx_t_24)) ))));
 
-      /* "mnnpy/_utils.pyx":57
+      /* "mnnpy/_utils.pyx":58
  *         for j in range(n_v):
  *             d1[i, 0] += grad[j] * data1[i, j]
  *             dist_working[j] = curcell[j] - data1[i, j]             # <<<<<<<<<<<<<<
@@ -2392,7 +2419,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       (__pyx_v_dist_working[__pyx_v_j]) = ((*((float *) ( /* dim=0 */ (__pyx_v_curcell.data + __pyx_t_27 * __pyx_v_curcell.strides[0]) ))) - (*((float *) ( /* dim=1 */ ((char *) (((float *) ( /* dim=0 */ (__pyx_v_data1.data + __pyx_t_28 * __pyx_v_data1.strides[0]) )) + __pyx_t_29)) ))));
     }
 
-    /* "mnnpy/_utils.pyx":58
+    /* "mnnpy/_utils.pyx":59
  *             d1[i, 0] += grad[j] * data1[i, j]
  *             dist_working[j] = curcell[j] - data1[i, j]
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2403,7 +2430,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
       __pyx_v_j = __pyx_t_15;
 
-      /* "mnnpy/_utils.pyx":59
+      /* "mnnpy/_utils.pyx":60
  *             dist_working[j] = curcell[j] - data1[i, j]
  *         for j in range(n_v):
  *             dist_scale += dist_working[j] * grad[j]             # <<<<<<<<<<<<<<
@@ -2413,7 +2440,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_v_dist_scale = (__pyx_v_dist_scale + ((__pyx_v_dist_working[__pyx_v_j]) * (__pyx_v_grad[__pyx_v_j])));
     }
 
-    /* "mnnpy/_utils.pyx":60
+    /* "mnnpy/_utils.pyx":61
  *         for j in range(n_v):
  *             dist_scale += dist_working[j] * grad[j]
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2424,7 +2451,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
       __pyx_v_j = __pyx_t_15;
 
-      /* "mnnpy/_utils.pyx":61
+      /* "mnnpy/_utils.pyx":62
  *             dist_scale += dist_working[j] * grad[j]
  *         for j in range(n_v):
  *             dist_working[j] -= grad[j] * dist_scale             # <<<<<<<<<<<<<<
@@ -2434,7 +2461,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_t_21 = __pyx_v_j;
       (__pyx_v_dist_working[__pyx_t_21]) = ((__pyx_v_dist_working[__pyx_t_21]) - ((__pyx_v_grad[__pyx_v_j]) * __pyx_v_dist_scale));
 
-      /* "mnnpy/_utils.pyx":62
+      /* "mnnpy/_utils.pyx":63
  *         for j in range(n_v):
  *             dist_working[j] -= grad[j] * dist_scale
  *             otherdist += dist_working[j] * dist_working[j]             # <<<<<<<<<<<<<<
@@ -2444,7 +2471,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_v_otherdist = (__pyx_v_otherdist + ((__pyx_v_dist_working[__pyx_v_j]) * (__pyx_v_dist_working[__pyx_v_j])));
     }
 
-    /* "mnnpy/_utils.pyx":63
+    /* "mnnpy/_utils.pyx":64
  *             dist_working[j] -= grad[j] * dist_scale
  *             otherdist += dist_working[j] * dist_working[j]
  *         weight = exp(-otherdist / sigma)             # <<<<<<<<<<<<<<
@@ -2454,11 +2481,11 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_t_6 = (-__pyx_v_otherdist);
     if (unlikely(__pyx_v_sigma == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 63, __pyx_L1_error)
+      __PYX_ERR(0, 64, __pyx_L1_error)
     }
     __pyx_v_weight = exp((__pyx_t_6 / __pyx_v_sigma));
 
-    /* "mnnpy/_utils.pyx":64
+    /* "mnnpy/_utils.pyx":65
  *             otherdist += dist_working[j] * dist_working[j]
  *         weight = exp(-otherdist / sigma)
  *         d1[i, 1] = weight             # <<<<<<<<<<<<<<
@@ -2469,7 +2496,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_t_31 = 1;
     *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_d1.data + __pyx_t_30 * __pyx_v_d1.strides[0]) ) + __pyx_t_31 * __pyx_v_d1.strides[1]) )) = __pyx_v_weight;
 
-    /* "mnnpy/_utils.pyx":65
+    /* "mnnpy/_utils.pyx":66
  *         weight = exp(-otherdist / sigma)
  *         d1[i, 1] = weight
  *         totalprob1 += weight             # <<<<<<<<<<<<<<
@@ -2479,16 +2506,16 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_v_totalprob1 = (__pyx_v_totalprob1 + __pyx_v_weight);
   }
 
-  /* "mnnpy/_utils.pyx":66
+  /* "mnnpy/_utils.pyx":67
  *         d1[i, 1] = weight
  *         totalprob1 += weight
  *     distance1 = distance1[distance1[:, 0].argsort()]             # <<<<<<<<<<<<<<
  *     cdef float target = prob2 * totalprob1
  *     cdef float cumulative = 0
  */
-  __pyx_t_10 = PyObject_GetItem(__pyx_v_distance1, __pyx_tuple__2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_10 = PyObject_GetItem(__pyx_v_distance1, __pyx_tuple__2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_argsort); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_argsort); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   __pyx_t_10 = NULL;
@@ -2502,20 +2529,20 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     }
   }
   if (__pyx_t_10) {
-    __pyx_t_12 = __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_10); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_10); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   } else {
-    __pyx_t_12 = __Pyx_PyObject_CallNoArg(__pyx_t_8); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_CallNoArg(__pyx_t_8); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 67, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = PyObject_GetItem(__pyx_v_distance1, __pyx_t_12); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_8 = PyObject_GetItem(__pyx_v_distance1, __pyx_t_12); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
   __Pyx_DECREF_SET(__pyx_v_distance1, __pyx_t_8);
   __pyx_t_8 = 0;
 
-  /* "mnnpy/_utils.pyx":67
+  /* "mnnpy/_utils.pyx":68
  *         totalprob1 += weight
  *     distance1 = distance1[distance1[:, 0].argsort()]
  *     cdef float target = prob2 * totalprob1             # <<<<<<<<<<<<<<
@@ -2524,7 +2551,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_target = (__pyx_v_prob2 * __pyx_v_totalprob1);
 
-  /* "mnnpy/_utils.pyx":68
+  /* "mnnpy/_utils.pyx":69
  *     distance1 = distance1[distance1[:, 0].argsort()]
  *     cdef float target = prob2 * totalprob1
  *     cdef float cumulative = 0             # <<<<<<<<<<<<<<
@@ -2533,7 +2560,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   __pyx_v_cumulative = 0.0;
 
-  /* "mnnpy/_utils.pyx":69
+  /* "mnnpy/_utils.pyx":70
  *     cdef float target = prob2 * totalprob1
  *     cdef float cumulative = 0
  *     cdef float ref_quan = d1[n_c1 - 1, 0]             # <<<<<<<<<<<<<<
@@ -2544,7 +2571,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   __pyx_t_33 = 0;
   __pyx_v_ref_quan = (*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_d1.data + __pyx_t_32 * __pyx_v_d1.strides[0]) ) + __pyx_t_33 * __pyx_v_d1.strides[1]) )));
 
-  /* "mnnpy/_utils.pyx":70
+  /* "mnnpy/_utils.pyx":71
  *     cdef float cumulative = 0
  *     cdef float ref_quan = d1[n_c1 - 1, 0]
  *     for i in range(n_c1):             # <<<<<<<<<<<<<<
@@ -2555,7 +2582,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_i = __pyx_t_2;
 
-    /* "mnnpy/_utils.pyx":71
+    /* "mnnpy/_utils.pyx":72
  *     cdef float ref_quan = d1[n_c1 - 1, 0]
  *     for i in range(n_c1):
  *         cumulative += d1[i, 1]             # <<<<<<<<<<<<<<
@@ -2566,7 +2593,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_t_35 = 1;
     __pyx_v_cumulative = (__pyx_v_cumulative + (*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_d1.data + __pyx_t_34 * __pyx_v_d1.strides[0]) ) + __pyx_t_35 * __pyx_v_d1.strides[1]) ))));
 
-    /* "mnnpy/_utils.pyx":72
+    /* "mnnpy/_utils.pyx":73
  *     for i in range(n_c1):
  *         cumulative += d1[i, 1]
  *         if cumulative > target:             # <<<<<<<<<<<<<<
@@ -2576,7 +2603,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
     __pyx_t_22 = ((__pyx_v_cumulative > __pyx_v_target) != 0);
     if (__pyx_t_22) {
 
-      /* "mnnpy/_utils.pyx":73
+      /* "mnnpy/_utils.pyx":74
  *         cumulative += d1[i, 1]
  *         if cumulative > target:
  *             ref_quan = d1[i, 0]             # <<<<<<<<<<<<<<
@@ -2587,7 +2614,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
       __pyx_t_37 = 0;
       __pyx_v_ref_quan = (*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_d1.data + __pyx_t_36 * __pyx_v_d1.strides[0]) ) + __pyx_t_37 * __pyx_v_d1.strides[1]) )));
 
-      /* "mnnpy/_utils.pyx":74
+      /* "mnnpy/_utils.pyx":75
  *         if cumulative > target:
  *             ref_quan = d1[i, 0]
  *             break             # <<<<<<<<<<<<<<
@@ -2596,7 +2623,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
       goto __pyx_L25_break;
 
-      /* "mnnpy/_utils.pyx":72
+      /* "mnnpy/_utils.pyx":73
  *     for i in range(n_c1):
  *         cumulative += d1[i, 1]
  *         if cumulative > target:             # <<<<<<<<<<<<<<
@@ -2607,7 +2634,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   }
   __pyx_L25_break:;
 
-  /* "mnnpy/_utils.pyx":75
+  /* "mnnpy/_utils.pyx":76
  *             ref_quan = d1[i, 0]
  *             break
  *     free(grad)             # <<<<<<<<<<<<<<
@@ -2616,7 +2643,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   free(__pyx_v_grad);
 
-  /* "mnnpy/_utils.pyx":76
+  /* "mnnpy/_utils.pyx":77
  *             break
  *     free(grad)
  *     free(dist_working)             # <<<<<<<<<<<<<<
@@ -2624,7 +2651,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  */
   free(__pyx_v_dist_working);
 
-  /* "mnnpy/_utils.pyx":77
+  /* "mnnpy/_utils.pyx":78
  *     free(grad)
  *     free(dist_working)
  *     return (ref_quan - curproj) / l2_norm             # <<<<<<<<<<<<<<
@@ -2632,7 +2659,7 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
   __pyx_t_6 = (__pyx_v_ref_quan - __pyx_v_curproj);
   if (unlikely(__pyx_v_l2_norm == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 77, __pyx_L1_error)
+    __PYX_ERR(0, 78, __pyx_L1_error)
   }
   __pyx_r = (__pyx_t_6 / __pyx_v_l2_norm);
   goto __pyx_L0;
@@ -2641,8 +2668,8 @@ static float __pyx_f_5mnnpy_6_utils_adjust_s_variance(__Pyx_memviewslice __pyx_v
  * @cython.wraparound(False)   # Deactivate negative indexing.
  * 
  * cdef float adjust_s_variance(float [:, ::1] data1, float [:, ::1] data2, float [:] curcell, float [:] curvect, float sigma):             # <<<<<<<<<<<<<<
+ *     print('Using Cython extension!')
  *     cdef Py_ssize_t i, j
- *     cdef Py_ssize_t n_c1  = data1.shape[0]
  */
 
   /* function exit code */
@@ -16196,6 +16223,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
   {&__pyx_kp_s_Unable_to_convert_item_to_object, __pyx_k_Unable_to_convert_item_to_object, sizeof(__pyx_k_Unable_to_convert_item_to_object), 0, 0, 1, 0},
+  {&__pyx_kp_s_Using_Cython_extension, __pyx_k_Using_Cython_extension, sizeof(__pyx_k_Using_Cython_extension), 0, 0, 1, 0},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_View_MemoryView, __pyx_k_View_MemoryView, sizeof(__pyx_k_View_MemoryView), 0, 0, 1, 1},
   {&__pyx_n_s_allocate_buffer, __pyx_k_allocate_buffer, sizeof(__pyx_k_allocate_buffer), 0, 0, 1, 1},
@@ -16211,8 +16239,10 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
   {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
+  {&__pyx_n_s_end, __pyx_k_end, sizeof(__pyx_k_end), 0, 0, 1, 1},
   {&__pyx_n_s_enumerate, __pyx_k_enumerate, sizeof(__pyx_k_enumerate), 0, 0, 1, 1},
   {&__pyx_n_s_error, __pyx_k_error, sizeof(__pyx_k_error), 0, 0, 1, 1},
+  {&__pyx_n_s_file, __pyx_k_file, sizeof(__pyx_k_file), 0, 0, 1, 1},
   {&__pyx_n_s_flags, __pyx_k_flags, sizeof(__pyx_k_flags), 0, 0, 1, 1},
   {&__pyx_n_s_float32, __pyx_k_float32, sizeof(__pyx_k_float32), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
@@ -16237,6 +16267,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
+  {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
@@ -16270,7 +16301,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 18, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 19, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 131, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 146, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 149, __pyx_L1_error)
@@ -16287,17 +16318,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "mnnpy/_utils.pyx":66
+  /* "mnnpy/_utils.pyx":67
  *         d1[i, 1] = weight
  *         totalprob1 += weight
  *     distance1 = distance1[distance1[:, 0].argsort()]             # <<<<<<<<<<<<<<
  *     cdef float target = prob2 * totalprob1
  *     cdef float cumulative = 0
  */
-  __pyx_slice_ = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice_)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_slice_ = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice_)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice_);
   __Pyx_GIVEREF(__pyx_slice_);
-  __pyx_tuple__2 = PyTuple_Pack(2, __pyx_slice_, __pyx_int_0); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(2, __pyx_slice_, __pyx_int_0); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
@@ -18907,6 +18938,112 @@ __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
     return cobj;
 }
 
+/* Print */
+      #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static PyObject *__Pyx_GetStdout(void) {
+    PyObject *f = PySys_GetObject((char *)"stdout");
+    if (!f) {
+        PyErr_SetString(PyExc_RuntimeError, "lost sys.stdout");
+    }
+    return f;
+}
+static int __Pyx_Print(PyObject* f, PyObject *arg_tuple, int newline) {
+    int i;
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    for (i=0; i < PyTuple_GET_SIZE(arg_tuple); i++) {
+        PyObject* v;
+        if (PyFile_SoftSpace(f, 1)) {
+            if (PyFile_WriteString(" ", f) < 0)
+                goto error;
+        }
+        v = PyTuple_GET_ITEM(arg_tuple, i);
+        if (PyFile_WriteObject(v, f, Py_PRINT_RAW) < 0)
+            goto error;
+        if (PyString_Check(v)) {
+            char *s = PyString_AsString(v);
+            Py_ssize_t len = PyString_Size(v);
+            if (len > 0) {
+                switch (s[len-1]) {
+                    case ' ': break;
+                    case '\f': case '\r': case '\n': case '\t': case '\v':
+                        PyFile_SoftSpace(f, 0);
+                        break;
+                    default:  break;
+                }
+            }
+        }
+    }
+    if (newline) {
+        if (PyFile_WriteString("\n", f) < 0)
+            goto error;
+        PyFile_SoftSpace(f, 0);
+    }
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+}
+#else
+static int __Pyx_Print(PyObject* stream, PyObject *arg_tuple, int newline) {
+    PyObject* kwargs = 0;
+    PyObject* result = 0;
+    PyObject* end_string;
+    if (unlikely(!__pyx_print)) {
+        __pyx_print = PyObject_GetAttr(__pyx_b, __pyx_n_s_print);
+        if (!__pyx_print)
+            return -1;
+    }
+    if (stream) {
+        kwargs = PyDict_New();
+        if (unlikely(!kwargs))
+            return -1;
+        if (unlikely(PyDict_SetItem(kwargs, __pyx_n_s_file, stream) < 0))
+            goto bad;
+        if (!newline) {
+            end_string = PyUnicode_FromStringAndSize(" ", 1);
+            if (unlikely(!end_string))
+                goto bad;
+            if (PyDict_SetItem(kwargs, __pyx_n_s_end, end_string) < 0) {
+                Py_DECREF(end_string);
+                goto bad;
+            }
+            Py_DECREF(end_string);
+        }
+    } else if (!newline) {
+        if (unlikely(!__pyx_print_kwargs)) {
+            __pyx_print_kwargs = PyDict_New();
+            if (unlikely(!__pyx_print_kwargs))
+                return -1;
+            end_string = PyUnicode_FromStringAndSize(" ", 1);
+            if (unlikely(!end_string))
+                return -1;
+            if (PyDict_SetItem(__pyx_print_kwargs, __pyx_n_s_end, end_string) < 0) {
+                Py_DECREF(end_string);
+                return -1;
+            }
+            Py_DECREF(end_string);
+        }
+        kwargs = __pyx_print_kwargs;
+    }
+    result = PyObject_Call(__pyx_print, arg_tuple, kwargs);
+    if (unlikely(kwargs) && (kwargs != __pyx_print_kwargs))
+        Py_DECREF(kwargs);
+    if (!result)
+        return -1;
+    Py_DECREF(result);
+    return 0;
+bad:
+    if (kwargs != __pyx_print_kwargs)
+        Py_XDECREF(kwargs);
+    return -1;
+}
+#endif
+
 /* MemviewSliceCopyTemplate */
       static __Pyx_memviewslice
 __pyx_memoryview_copy_new_contig(const __Pyx_memviewslice *from_mvs,
@@ -18973,6 +19110,43 @@ no_fail:
     __Pyx_RefNannyFinishContext();
     return new_mvs;
 }
+
+/* PrintOne */
+      #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static int __Pyx_PrintOne(PyObject* f, PyObject *o) {
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    if (PyFile_SoftSpace(f, 0)) {
+        if (PyFile_WriteString(" ", f) < 0)
+            goto error;
+    }
+    if (PyFile_WriteObject(o, f, Py_PRINT_RAW) < 0)
+        goto error;
+    if (PyFile_WriteString("\n", f) < 0)
+        goto error;
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+    /* the line below is just to avoid C compiler
+     * warnings about unused functions */
+    return __Pyx_Print(f, NULL, 0);
+}
+#else
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o) {
+    int res;
+    PyObject* arg_tuple = PyTuple_Pack(1, o);
+    if (unlikely(!arg_tuple))
+        return -1;
+    res = __Pyx_Print(stream, arg_tuple, 1);
+    Py_DECREF(arg_tuple);
+    return res;
+}
+#endif
 
 /* CIntFromPyVerify */
       #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
