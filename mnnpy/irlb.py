@@ -1,3 +1,8 @@
+"""
+See
+https://github.com/airysen/irlbpy
+for full repo.
+"""
 import numpy as np
 import scipy.sparse as sparse
 import warnings

@@ -5,10 +5,3 @@ install:
   - pip install -r requirements.txt
 script:
   - python setup.py check
-deploy:
-  provider: pypi
-  user: chriscainx
-  password:
-    secure: UFOF06nYPgnfeG1/UUJ9yUGgbifnQEbeo1Kg6D3nM44WGyvseH5F3gJ4RzbYYceTnKg4iQGKsZM3a0qNZ1hgSf/a/7ypbXNvfp94nUHuL5MuBVqEa8+rVI9NrFjqN/7qpODPv5N2aMgtebbKnhrV3dbdhU4NeT5iQauIsJ0lZS7H2jjQ/EwVdkVukx0KtW5JUEn31vxgcXd7M1QfQ+yBn+FSGL/I9QSKlkGPDQg1BhwRtRWY08BU1+5a6zxGjROe7O35lfuY+Q0X9G1KzxREpWwl70gmzR15yQajAy3YvwqcvioPZkG2AWVVmabkS6RBCx85d0Upq+Z8vJDqQ9EoagREteG14ar0kQ5k8jF04+zGSuQc1oAR/d3GHZxY25e4EFE+hAWQHe5JghDbO9jpoIrdoLOIfU6WXx8lhswbpur5Z650MuBjx9ZJDHn2X+C3KgDpQc3xi9tp/rpfHmuHlH8i2uBMnZWnLywSb6Y4CTGEfY1AQj+TvU2FQEYT/THQHPjCBJxoa3/2F9UBt5hmyusglf5MkHKfBna7vji8TJhDqnNWPoQjyTRPNvvzm23Ev3ELKjBe813B/jvGe8AVkOAC0jv3vP3uPyCL4qAaUYDFsxW8jq9QEF+ti/CAt75/ZREAaymzp7pCE1gNYMGwg0Wk7iSCecRjUwNlWT5AZ7w=
-  on:
-    branch: master
