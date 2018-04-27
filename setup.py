@@ -32,5 +32,5 @@ setup(name='mnnpy',
       ],
       python_requires='>=3.4',
       py_modules=['irlb', 'mnn', 'utils'],
-      ext_modules=extm
+      ext_modules=extm,
       zip_safe=False)
