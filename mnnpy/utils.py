@@ -229,7 +229,8 @@ class adjust_v_worker(object):
         return adjust_s_variance(self.d1, self.d2, curcell, curvect, self.s2)
 
 try:
-    from _utils import adjust_s_variance
+    from ._utils import adjust_s_variance
+    print('Cython module loaded!')
 except ImportError:
     print('Cython module _utils not initialized. Fallback to python.')
     pass
