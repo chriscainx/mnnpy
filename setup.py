@@ -6,7 +6,7 @@ with req_path.open() as requirements:
     requires = [l.strip() for l in requirements]
 
 setup(name='mnnpy',
-      version='0.1.3',
+      version='0.1.4',
       description='Mutual nearest neighbors correction in python.',
       long_description='Correcting batch effects in single-cell expression datasets using the mutual nearest neighbors method.',
       url='http://github.com/chriscainx/mnnpy',

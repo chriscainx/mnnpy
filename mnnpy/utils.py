@@ -169,17 +169,18 @@ def adjust_shift_variance(data1, data2, correction, sigma, n_jobs, var_subset=No
         data2 = data2[:, var_subset]
     else:
         vect = correction
+    # COSNORM vect here
+    vect_norm = l2_norm(vect)[:, None]
+    vect = np.divide(vect, vect_norm)
     with Pool(n_jobs) as p_n:
         scaling = p_n.starmap(adjust_v_worker(data1, data2, sigma), zip(data2, vect))
-    scaling = max(*scaling, 1)
+    scaling = np.fmax(scaling, 1)
     return correction * scaling
 
 
 @jit(float32(float32[:, :], float32[:, :], float32[:], float32[:], float32), nogil=True)
-def adjust_s_variance(data1, data2, curcell, curvect, sigma):
+def adjust_s_variance(data1, data2, curcell, grad, sigma):
     distance1 = np.zeros((data1.shape[0], 2), dtype=np.float32)
-    l2_norm = np.linalg.norm(curvect)
-    grad = np.divide(curvect, l2_norm)
     curproj = np.dot(grad, curcell)
     prob2 = 0.
     totalprob2 = 0.
