@@ -227,3 +227,9 @@ class adjust_v_worker(object):
 
     def __call__(self, curcell, curvect):
         return adjust_s_variance(self.d1, self.d2, curcell, curvect, self.s2)
+
+try:
+    from _utils import adjust_s_variance
+except ImportError:
+    print('Cython module _utils not initialized. Fallback to python.')
+    pass

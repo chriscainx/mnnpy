@@ -1,5 +1,11 @@
 from setuptools import setup
 from pathlib import Path
+try:
+    from Cython.Build import cythonize
+    extm = cythonize('mnnpy/_utils.pyx')
+except ImportError:
+    from setuptools import Extension
+    extm = Extension('_utils', ['mnnpy/_utils.c'])
 
 req_path = Path('requirements.txt')
 with req_path.open() as requirements:
@@ -26,4 +32,5 @@ setup(name='mnnpy',
       ],
       python_requires='>=3.4',
       py_modules=['irlb', 'mnn', 'utils'],
+      ext_modules=extm
       zip_safe=False)
