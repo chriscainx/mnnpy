@@ -6,3 +6,6 @@ include LICENSE
 
 # Include the data files
 recursive-include mnnpy *
+
+# Include requirements.txt
+include requirements.txt
