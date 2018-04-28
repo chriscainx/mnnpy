@@ -1,3 +1,5 @@
+import os
+import imp
 import math
 import numpy as np
 from multiprocessing import Pool
@@ -228,8 +230,16 @@ class adjust_v_worker(object):
     def __call__(self, curcell, curvect):
         return adjust_s_variance(self.d1, self.d2, curcell, curvect, self.s2)
 
+
+def get_so_paths(dir_name):
+    dir_name = os.path.join(os.path.dirname(__file__), dir_name)
+    list_dir = os.listdir(dir_name) if os.path.isdir(dir_name) else []
+    return [os.path.join(dir_name, so_name) for so_name in list_dir if so_name.split('.')[-1] in ['so', 'pyd']]
+
+
+
 try:
-    from ._utils import adjust_s_variance
+    adjust_s_variance = imp.load_dynamic('_adjust_s_variance', get_so_paths('./'))
     print('Cython module loaded!')
 except ImportError:
     print('Cython module _utils not initialized. Fallback to python.')

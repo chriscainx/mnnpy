@@ -5,7 +5,6 @@ import numpy as np
 
 @cython.boundscheck(False)  # Deactivate bounds checking
 @cython.wraparound(False)   # Deactivate negative indexing.
-
 cpdef float _adjust_s_variance(float [:, ::1] data1, float [:, ::1] data2, float [:] curcell, float [:] curvect, float sigma):
     print('Using Cython extension!')
     cdef Py_ssize_t i, j
