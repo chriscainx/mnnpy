@@ -1,5 +1,3 @@
-import os
-import imp
 import math
 import numpy as np
 from multiprocessing import Pool
@@ -239,8 +237,9 @@ def get_so_paths(dir_name):
 
 
 try:
-    adjust_s_variance = imp.load_dynamic('_adjust_s_variance', get_so_paths('./'))
+    from ._utils import _adjust_s_variance as adjust_s_variance
     print('Cython module loaded!')
-except ImportError:
+except ImportError as e:
+    raise e
     print('Cython module _utils not initialized. Fallback to python.')
     pass
