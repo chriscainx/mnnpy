@@ -1,11 +1,14 @@
 cimport cython
-from libc.stdlib cimport malloc, free
+from libc.stdlib cimport malloc, free, qsort
 from libc.math cimport exp, sqrt
 import numpy as np
 
+cdef extern from "_utils.h":
+    int comp(const void* a, const void* b) nogil
+
 @cython.boundscheck(False)  # Deactivate bounds checking
 @cython.wraparound(False)   # Deactivate negative indexing.
-cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:] curcell, float [:] curvect, float sigma):
+cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:] curcell, float [:] curvect, float sigma) nogil:
     cdef Py_ssize_t i, j
     cdef Py_ssize_t n_c1  = data1.shape[0]
     cdef Py_ssize_t n_c2  = data2.shape[0]
@@ -21,8 +24,9 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
     for j in range(n_v):
         grad[j] = curvect[j] / l2_norm
         curproj += grad[j] * curcell[j]
-    distance1 = np.zeros((n_c1, 2), dtype=np.float32)
-    cdef float [:, :] d1 = distance1
+    cdef (float *) *d1 = <float **>malloc(n_c1 * sizeof(float*))
+    for i in range(n_c1):
+        d1[i] = <float *>malloc(2 * sizeof(float))
     cdef float sameproj
     cdef float samedist
     cdef float dist_scale
@@ -52,7 +56,7 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
         otherdist  = 0
         dist_scale = 0
         for j in range(n_v):
-            d1[i, 0] += grad[j] * data1[i, j]
+            d1[i][0] += grad[j] * data1[i, j]
             dist_working[j] = curcell[j] - data1[i, j]
         for j in range(n_v):
             dist_scale += dist_working[j] * grad[j]
@@ -60,16 +64,16 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
             dist_working[j] -= grad[j] * dist_scale
             otherdist += dist_working[j] * dist_working[j]
         weight = exp(-otherdist / sigma)
-        d1[i, 1] = weight
+        d1[i][1] = weight
         totalprob1 += weight
-    distance1 = distance1[distance1[:, 0].argsort()]
+    qsort(d1, n_c1, sizeof(float) * 2, &comp)
     cdef float target = prob2 * totalprob1
     cdef float cumulative = 0
-    cdef float ref_quan = d1[n_c1 - 1, 0]
+    cdef float ref_quan = d1[n_c1 - 1][0]
     for i in range(n_c1):
-        cumulative += d1[i, 1]
+        cumulative += d1[i][1]
         if cumulative > target:
-            ref_quan = d1[i, 0]
+            ref_quan = d1[i][0]
             break
     free(grad)
     free(dist_working)
