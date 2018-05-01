@@ -11,7 +11,7 @@
         ],
         "name": "mnnpy._utils",
         "sources": [
-            "/Users/chrisk/Devel/mnnpy/mnnpy/_utils.pyx"
+            "mnnpy/_utils.pyx"
         ]
     },
     "module_name": "mnnpy._utils"
