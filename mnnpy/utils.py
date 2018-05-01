@@ -170,7 +170,8 @@ def adjust_shift_variance(data1, data2, correction, sigma, n_jobs, var_subset=No
     else:
         vect = correction
     with Pool(n_jobs) as p_n:
-        scaling = p_n.starmap(adjust_v_worker(data1, data2, sigma), zip(data2, vect))
+        scaling = p_n.starmap(adjust_v_worker(data1, data2, sigma), zip(data2, vect), 
+                              chunksize=int(data2.shape[0]/n_jobs) + 1)
     scaling = np.fmax(scaling, 1).astype(np.float32)
     return correction * scaling[:, None]
 
