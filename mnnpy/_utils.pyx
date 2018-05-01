@@ -55,6 +55,7 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
     for i in range(n_c1):
         otherdist  = 0
         dist_scale = 0
+        d1[i][0] = 0
         for j in range(n_v):
             d1[i][0] += grad[j] * data1[i, j]
             dist_working[j] = curcell[j] - data1[i, j]
