@@ -86,9 +86,11 @@ def compute_correction(data1, data2, mnn1, mnn2, data2_or_raw2, sigma):
     for index, ve in zip(mnn2, vect):
         vect_reduced[index] += ve
     vect_avg = np.divide(vect_reduced[mnn_index], mnn_count.astype(np.float32)[:, None])
+    del vect, vect_reduced
     exp_distance = np.exp(-kdist(data2_or_raw2, data2_or_raw2[mnn_index]) / sigma)
     density = np.sum(exp_distance[mnn_index], axis=0)
     mult = np.divide(exp_distance, density)
+    del exp_distance, density
     total_prob = np.sum(mult, axis=1, keepdims=True)
     output = np.dot(mult, vect_avg)
     return np.divide(output, total_prob)
