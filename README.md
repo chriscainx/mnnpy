@@ -9,7 +9,10 @@ This project is a python implementation of the MNN correct algorithm which takes
 
 ## Status
 
-First release! Please help me test it and file in any issues.
+- ver 0.1.7: rewrote adjust_shift_variance in Cython for performance gain. 
+- TODO: optimize compute_correction
+
+Please help me test it and file in any issues.
 
 **JIT speed up** from [numba](http://numba.pydata.org) is currently used. 
 

@@ -171,7 +171,7 @@ def adjust_shift_variance(data1, data2, correction, sigma, n_jobs, var_subset=No
         vect = correction
     with Pool(n_jobs) as p_n:
         scaling = p_n.starmap(adjust_v_worker(data1, data2, sigma), zip(data2, vect))
-    scaling = fmax(scaling, 1)
+    scaling = np.fmax(scaling, 1)
     return correction * scaling[:, None]
 
 
@@ -227,3 +227,18 @@ class adjust_v_worker(object):
 
     def __call__(self, curcell, curvect):
         return adjust_s_variance(self.d1, self.d2, curcell, curvect, self.s2)
+
+
+def get_so_paths(dir_name):
+    dir_name = os.path.join(os.path.dirname(__file__), dir_name)
+    list_dir = os.listdir(dir_name) if os.path.isdir(dir_name) else []
+    return [os.path.join(dir_name, so_name) for so_name in list_dir if so_name.split('.')[-1] in ['so', 'pyd']]
+
+
+
+try:
+    from ._utils import _adjust_s_variance as adjust_s_variance
+    #print('Cython module loaded!')
+except ImportError:
+    print('Cython module _utils not initialized. Fallback to python.')
+    pass
