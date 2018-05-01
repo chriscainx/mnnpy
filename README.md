@@ -9,6 +9,7 @@ This project is a python implementation of the MNN correct algorithm which takes
 
 ## Status
 
+- ver 0.1.8: changed multiprocess chunck size for *significant* speedup
 - ver 0.1.7: rewrote adjust_shift_variance in Cython for performance gain. 
 - TODO: optimize compute_correction
 
