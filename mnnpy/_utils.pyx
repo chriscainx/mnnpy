@@ -66,7 +66,7 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
         weight = exp(-otherdist / sigma)
         d1[i][1] = weight
         totalprob1 += weight
-    qsort(d1, n_c1, sizeof(float) * 2, &comp)
+    qsort(d1, n_c1, sizeof(float**), &comp)
     cdef float target = prob2 * totalprob1
     cdef float cumulative = 0
     cdef float ref_quan = d1[n_c1 - 1][0]
