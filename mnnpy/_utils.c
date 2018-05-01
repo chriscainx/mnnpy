@@ -2039,7 +2039,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  *     for j in range(n_v):
  *         grad[j] = curvect[j] / l2_norm             # <<<<<<<<<<<<<<
  *         curproj += grad[j] * curcell[j]
- *     cdef (float *) *d1 = <float **>malloc(n_c1 * sizeof(float*))
+ *     cdef float **d1 = <float **>malloc(n_c1 * sizeof(float*))
  */
     __pyx_t_5 = __pyx_v_j;
     __pyx_t_6 = (*((float *) ( /* dim=0 */ (__pyx_v_curvect.data + __pyx_t_5 * __pyx_v_curvect.strides[0]) )));
@@ -2059,7 +2059,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  *     for j in range(n_v):
  *         grad[j] = curvect[j] / l2_norm
  *         curproj += grad[j] * curcell[j]             # <<<<<<<<<<<<<<
- *     cdef (float *) *d1 = <float **>malloc(n_c1 * sizeof(float*))
+ *     cdef float **d1 = <float **>malloc(n_c1 * sizeof(float*))
  *     for i in range(n_c1):
  */
     __pyx_t_7 = __pyx_v_j;
@@ -2069,7 +2069,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
   /* "mnnpy/_utils.pyx":27
  *         grad[j] = curvect[j] / l2_norm
  *         curproj += grad[j] * curcell[j]
- *     cdef (float *) *d1 = <float **>malloc(n_c1 * sizeof(float*))             # <<<<<<<<<<<<<<
+ *     cdef float **d1 = <float **>malloc(n_c1 * sizeof(float*))             # <<<<<<<<<<<<<<
  *     for i in range(n_c1):
  *         d1[i] = <float *>malloc(2 * sizeof(float))
  */
@@ -2077,7 +2077,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
 
   /* "mnnpy/_utils.pyx":28
  *         curproj += grad[j] * curcell[j]
- *     cdef (float *) *d1 = <float **>malloc(n_c1 * sizeof(float*))
+ *     cdef float **d1 = <float **>malloc(n_c1 * sizeof(float*))
  *     for i in range(n_c1):             # <<<<<<<<<<<<<<
  *         d1[i] = <float *>malloc(2 * sizeof(float))
  *     cdef float sameproj
@@ -2087,7 +2087,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
     __pyx_v_i = __pyx_t_2;
 
     /* "mnnpy/_utils.pyx":29
- *     cdef (float *) *d1 = <float **>malloc(n_c1 * sizeof(float*))
+ *     cdef float **d1 = <float **>malloc(n_c1 * sizeof(float*))
  *     for i in range(n_c1):
  *         d1[i] = <float *>malloc(2 * sizeof(float))             # <<<<<<<<<<<<<<
  *     cdef float sameproj
@@ -2332,7 +2332,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  *     for i in range(n_c1):
  *         otherdist  = 0             # <<<<<<<<<<<<<<
  *         dist_scale = 0
- *         for j in range(n_v):
+ *         d1[i][0] = 0
  */
     __pyx_v_otherdist = 0.0;
 
@@ -2340,14 +2340,23 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  *     for i in range(n_c1):
  *         otherdist  = 0
  *         dist_scale = 0             # <<<<<<<<<<<<<<
+ *         d1[i][0] = 0
  *         for j in range(n_v):
- *             d1[i][0] += grad[j] * data1[i, j]
  */
     __pyx_v_dist_scale = 0.0;
 
     /* "mnnpy/_utils.pyx":58
  *         otherdist  = 0
  *         dist_scale = 0
+ *         d1[i][0] = 0             # <<<<<<<<<<<<<<
+ *         for j in range(n_v):
+ *             d1[i][0] += grad[j] * data1[i, j]
+ */
+    ((__pyx_v_d1[__pyx_v_i])[0]) = 0.0;
+
+    /* "mnnpy/_utils.pyx":59
+ *         dist_scale = 0
+ *         d1[i][0] = 0
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
  *             d1[i][0] += grad[j] * data1[i, j]
  *             dist_working[j] = curcell[j] - data1[i, j]
@@ -2356,8 +2365,8 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "mnnpy/_utils.pyx":59
- *         dist_scale = 0
+      /* "mnnpy/_utils.pyx":60
+ *         d1[i][0] = 0
  *         for j in range(n_v):
  *             d1[i][0] += grad[j] * data1[i, j]             # <<<<<<<<<<<<<<
  *             dist_working[j] = curcell[j] - data1[i, j]
@@ -2369,7 +2378,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
       __pyx_t_19 = __pyx_v_j;
       ((__pyx_v_d1[__pyx_t_15])[__pyx_t_17]) = (((__pyx_v_d1[__pyx_t_15])[__pyx_t_17]) + ((__pyx_v_grad[__pyx_v_j]) * (*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_data1.data + __pyx_t_18 * __pyx_v_data1.strides[0]) ) + __pyx_t_19 * __pyx_v_data1.strides[1]) )))));
 
-      /* "mnnpy/_utils.pyx":60
+      /* "mnnpy/_utils.pyx":61
  *         for j in range(n_v):
  *             d1[i][0] += grad[j] * data1[i, j]
  *             dist_working[j] = curcell[j] - data1[i, j]             # <<<<<<<<<<<<<<
@@ -2382,7 +2391,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
       (__pyx_v_dist_working[__pyx_v_j]) = ((*((float *) ( /* dim=0 */ (__pyx_v_curcell.data + __pyx_t_20 * __pyx_v_curcell.strides[0]) ))) - (*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_data1.data + __pyx_t_21 * __pyx_v_data1.strides[0]) ) + __pyx_t_22 * __pyx_v_data1.strides[1]) ))));
     }
 
-    /* "mnnpy/_utils.pyx":61
+    /* "mnnpy/_utils.pyx":62
  *             d1[i][0] += grad[j] * data1[i, j]
  *             dist_working[j] = curcell[j] - data1[i, j]
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2393,7 +2402,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "mnnpy/_utils.pyx":62
+      /* "mnnpy/_utils.pyx":63
  *             dist_working[j] = curcell[j] - data1[i, j]
  *         for j in range(n_v):
  *             dist_scale += dist_working[j] * grad[j]             # <<<<<<<<<<<<<<
@@ -2403,7 +2412,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
       __pyx_v_dist_scale = (__pyx_v_dist_scale + ((__pyx_v_dist_working[__pyx_v_j]) * (__pyx_v_grad[__pyx_v_j])));
     }
 
-    /* "mnnpy/_utils.pyx":63
+    /* "mnnpy/_utils.pyx":64
  *         for j in range(n_v):
  *             dist_scale += dist_working[j] * grad[j]
  *         for j in range(n_v):             # <<<<<<<<<<<<<<
@@ -2414,7 +2423,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "mnnpy/_utils.pyx":64
+      /* "mnnpy/_utils.pyx":65
  *             dist_scale += dist_working[j] * grad[j]
  *         for j in range(n_v):
  *             dist_working[j] -= grad[j] * dist_scale             # <<<<<<<<<<<<<<
@@ -2424,7 +2433,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
       __pyx_t_15 = __pyx_v_j;
       (__pyx_v_dist_working[__pyx_t_15]) = ((__pyx_v_dist_working[__pyx_t_15]) - ((__pyx_v_grad[__pyx_v_j]) * __pyx_v_dist_scale));
 
-      /* "mnnpy/_utils.pyx":65
+      /* "mnnpy/_utils.pyx":66
  *         for j in range(n_v):
  *             dist_working[j] -= grad[j] * dist_scale
  *             otherdist += dist_working[j] * dist_working[j]             # <<<<<<<<<<<<<<
@@ -2434,7 +2443,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
       __pyx_v_otherdist = (__pyx_v_otherdist + ((__pyx_v_dist_working[__pyx_v_j]) * (__pyx_v_dist_working[__pyx_v_j])));
     }
 
-    /* "mnnpy/_utils.pyx":66
+    /* "mnnpy/_utils.pyx":67
  *             dist_working[j] -= grad[j] * dist_scale
  *             otherdist += dist_working[j] * dist_working[j]
  *         weight = exp(-otherdist / sigma)             # <<<<<<<<<<<<<<
@@ -2450,49 +2459,49 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
       #ifdef WITH_THREAD
       __Pyx_PyGILState_Release(__pyx_gilstate_save);
       #endif
-      __PYX_ERR(0, 66, __pyx_L1_error)
+      __PYX_ERR(0, 67, __pyx_L1_error)
     }
     __pyx_v_weight = exp((__pyx_t_6 / __pyx_v_sigma));
 
-    /* "mnnpy/_utils.pyx":67
+    /* "mnnpy/_utils.pyx":68
  *             otherdist += dist_working[j] * dist_working[j]
  *         weight = exp(-otherdist / sigma)
  *         d1[i][1] = weight             # <<<<<<<<<<<<<<
  *         totalprob1 += weight
- *     qsort(d1, n_c1, sizeof(float) * 2, &comp)
+ *     qsort(d1, n_c1, sizeof(float*), &comp)
  */
     ((__pyx_v_d1[__pyx_v_i])[1]) = __pyx_v_weight;
 
-    /* "mnnpy/_utils.pyx":68
+    /* "mnnpy/_utils.pyx":69
  *         weight = exp(-otherdist / sigma)
  *         d1[i][1] = weight
  *         totalprob1 += weight             # <<<<<<<<<<<<<<
- *     qsort(d1, n_c1, sizeof(float) * 2, &comp)
+ *     qsort(d1, n_c1, sizeof(float*), &comp)
  *     cdef float target = prob2 * totalprob1
  */
     __pyx_v_totalprob1 = (__pyx_v_totalprob1 + __pyx_v_weight);
   }
 
-  /* "mnnpy/_utils.pyx":69
+  /* "mnnpy/_utils.pyx":70
  *         d1[i][1] = weight
  *         totalprob1 += weight
- *     qsort(d1, n_c1, sizeof(float) * 2, &comp)             # <<<<<<<<<<<<<<
+ *     qsort(d1, n_c1, sizeof(float*), &comp)             # <<<<<<<<<<<<<<
  *     cdef float target = prob2 * totalprob1
  *     cdef float cumulative = 0
  */
-  qsort(__pyx_v_d1, __pyx_v_n_c1, ((sizeof(float)) * 2), (&comp));
+  qsort(__pyx_v_d1, __pyx_v_n_c1, (sizeof(float *)), (&comp));
 
-  /* "mnnpy/_utils.pyx":70
+  /* "mnnpy/_utils.pyx":71
  *         totalprob1 += weight
- *     qsort(d1, n_c1, sizeof(float) * 2, &comp)
+ *     qsort(d1, n_c1, sizeof(float*), &comp)
  *     cdef float target = prob2 * totalprob1             # <<<<<<<<<<<<<<
  *     cdef float cumulative = 0
  *     cdef float ref_quan = d1[n_c1 - 1][0]
  */
   __pyx_v_target = (__pyx_v_prob2 * __pyx_v_totalprob1);
 
-  /* "mnnpy/_utils.pyx":71
- *     qsort(d1, n_c1, sizeof(float) * 2, &comp)
+  /* "mnnpy/_utils.pyx":72
+ *     qsort(d1, n_c1, sizeof(float*), &comp)
  *     cdef float target = prob2 * totalprob1
  *     cdef float cumulative = 0             # <<<<<<<<<<<<<<
  *     cdef float ref_quan = d1[n_c1 - 1][0]
@@ -2500,7 +2509,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  */
   __pyx_v_cumulative = 0.0;
 
-  /* "mnnpy/_utils.pyx":72
+  /* "mnnpy/_utils.pyx":73
  *     cdef float target = prob2 * totalprob1
  *     cdef float cumulative = 0
  *     cdef float ref_quan = d1[n_c1 - 1][0]             # <<<<<<<<<<<<<<
@@ -2509,7 +2518,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  */
   __pyx_v_ref_quan = ((__pyx_v_d1[(__pyx_v_n_c1 - 1)])[0]);
 
-  /* "mnnpy/_utils.pyx":73
+  /* "mnnpy/_utils.pyx":74
  *     cdef float cumulative = 0
  *     cdef float ref_quan = d1[n_c1 - 1][0]
  *     for i in range(n_c1):             # <<<<<<<<<<<<<<
@@ -2520,7 +2529,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_i = __pyx_t_2;
 
-    /* "mnnpy/_utils.pyx":74
+    /* "mnnpy/_utils.pyx":75
  *     cdef float ref_quan = d1[n_c1 - 1][0]
  *     for i in range(n_c1):
  *         cumulative += d1[i][1]             # <<<<<<<<<<<<<<
@@ -2529,7 +2538,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  */
     __pyx_v_cumulative = (__pyx_v_cumulative + ((__pyx_v_d1[__pyx_v_i])[1]));
 
-    /* "mnnpy/_utils.pyx":75
+    /* "mnnpy/_utils.pyx":76
  *     for i in range(n_c1):
  *         cumulative += d1[i][1]
  *         if cumulative > target:             # <<<<<<<<<<<<<<
@@ -2539,7 +2548,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
     __pyx_t_16 = ((__pyx_v_cumulative > __pyx_v_target) != 0);
     if (__pyx_t_16) {
 
-      /* "mnnpy/_utils.pyx":76
+      /* "mnnpy/_utils.pyx":77
  *         cumulative += d1[i][1]
  *         if cumulative > target:
  *             ref_quan = d1[i][0]             # <<<<<<<<<<<<<<
@@ -2548,7 +2557,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  */
       __pyx_v_ref_quan = ((__pyx_v_d1[__pyx_v_i])[0]);
 
-      /* "mnnpy/_utils.pyx":77
+      /* "mnnpy/_utils.pyx":78
  *         if cumulative > target:
  *             ref_quan = d1[i][0]
  *             break             # <<<<<<<<<<<<<<
@@ -2557,7 +2566,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
  */
       goto __pyx_L27_break;
 
-      /* "mnnpy/_utils.pyx":75
+      /* "mnnpy/_utils.pyx":76
  *     for i in range(n_c1):
  *         cumulative += d1[i][1]
  *         if cumulative > target:             # <<<<<<<<<<<<<<
@@ -2568,27 +2577,57 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
   }
   __pyx_L27_break:;
 
-  /* "mnnpy/_utils.pyx":78
+  /* "mnnpy/_utils.pyx":79
  *             ref_quan = d1[i][0]
  *             break
  *     free(grad)             # <<<<<<<<<<<<<<
  *     free(dist_working)
- *     return (ref_quan - curproj) / l2_norm
+ *     for i in range(n_c1):
  */
   free(__pyx_v_grad);
 
-  /* "mnnpy/_utils.pyx":79
+  /* "mnnpy/_utils.pyx":80
  *             break
  *     free(grad)
  *     free(dist_working)             # <<<<<<<<<<<<<<
- *     return (ref_quan - curproj) / l2_norm
- * 
+ *     for i in range(n_c1):
+ *         free(d1[i])
  */
   free(__pyx_v_dist_working);
 
-  /* "mnnpy/_utils.pyx":80
+  /* "mnnpy/_utils.pyx":81
  *     free(grad)
  *     free(dist_working)
+ *     for i in range(n_c1):             # <<<<<<<<<<<<<<
+ *         free(d1[i])
+ *     free(d1)
+ */
+  __pyx_t_1 = __pyx_v_n_c1;
+  for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
+    __pyx_v_i = __pyx_t_2;
+
+    /* "mnnpy/_utils.pyx":82
+ *     free(dist_working)
+ *     for i in range(n_c1):
+ *         free(d1[i])             # <<<<<<<<<<<<<<
+ *     free(d1)
+ *     return (ref_quan - curproj) / l2_norm
+ */
+    free((__pyx_v_d1[__pyx_v_i]));
+  }
+
+  /* "mnnpy/_utils.pyx":83
+ *     for i in range(n_c1):
+ *         free(d1[i])
+ *     free(d1)             # <<<<<<<<<<<<<<
+ *     return (ref_quan - curproj) / l2_norm
+ * 
+ */
+  free(__pyx_v_d1);
+
+  /* "mnnpy/_utils.pyx":84
+ *         free(d1[i])
+ *     free(d1)
  *     return (ref_quan - curproj) / l2_norm             # <<<<<<<<<<<<<<
  * 
  */
@@ -2601,7 +2640,7 @@ static float __pyx_f_5mnnpy_6_utils__adjust_s_variance(__Pyx_memviewslice __pyx_
     #ifdef WITH_THREAD
     __Pyx_PyGILState_Release(__pyx_gilstate_save);
     #endif
-    __PYX_ERR(0, 80, __pyx_L1_error)
+    __PYX_ERR(0, 84, __pyx_L1_error)
   }
   __pyx_r = (__pyx_t_6 / __pyx_v_l2_norm);
   goto __pyx_L0;
