@@ -24,7 +24,7 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
     for j in range(n_v):
         grad[j] = curvect[j] / l2_norm
         curproj += grad[j] * curcell[j]
-    cdef (float *) *d1 = <float **>malloc(n_c1 * sizeof(float*))
+    cdef float **d1 = <float **>malloc(n_c1 * sizeof(float*))
     for i in range(n_c1):
         d1[i] = <float *>malloc(2 * sizeof(float))
     cdef float sameproj
@@ -78,5 +78,8 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
             break
     free(grad)
     free(dist_working)
+    for i in range(n_c2):
+        free(d1[i])
+    free(d1)
     return (ref_quan - curproj) / l2_norm
 
