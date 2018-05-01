@@ -78,7 +78,7 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
             break
     free(grad)
     free(dist_working)
-    for i in range(n_c2):
+    for i in range(n_c1):
         free(d1[i])
     free(d1)
     return (ref_quan - curproj) / l2_norm
