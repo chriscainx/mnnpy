@@ -5,7 +5,9 @@ try:
     extm = cythonize('mnnpy/_utils.pyx')
 except ImportError:
     from setuptools import Extension
-    extm = Extension('_utils', ['mnnpy/_utils.c'])
+    extm = Extension('_utils', 
+                     ['mnnpy/_utils.c'],
+                     extra_compile_args = ["-O3", "-ffast-math", "-march=native"])
 
 req_path = Path('requirements.txt')
 with req_path.open() as requirements:
