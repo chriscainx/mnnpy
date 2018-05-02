@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/chriscainx/mnnpy.svg?branch=master)](https://travis-ci.org/chriscainx/mnnpy)
+[![Build Status](https://travis-ci.org/chriscainx/mnnpy.svg?branch=master)](https://travis-ci.org/chriscainx/mnnpy) [![Downloads](http://pepy.tech/badge/mnnpy)](http://pepy.tech/count/mnnpy)
 # mnnpy - MNN-correct in python!
 
 An implementation of MNN correct in python featuring low memory usage, full multicore support and compatibility with the [scanpy](https://github.com/theislab/scanpy) framework.
