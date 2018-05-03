@@ -1,11 +1,11 @@
 from setuptools import setup, Extension
 from pathlib import Path
 
-ext_mod = Extension('_utils', 
+ext_mod = Extension('mnnpy._utils', 
                     ['mnnpy/_utils.pyx'],
                     extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
                     extra_link_args=['-fopenmp'])
-ext_mod_c = Extension('_utils', 
+ext_mod_c = Extension('mnnpy._utils', 
                       ['mnnpy/_utils.c'],
                       extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
                       extra_link_args=['-fopenmp'])
