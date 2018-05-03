@@ -97,7 +97,7 @@ cpdef _adjust_shift_variance(data1, data2, correction, sigma, n_jobs, var_subset
     cdef float [:, :] da2 = data2
     cdef float [:, :] vec = vect
     scaling = np.zeros(data2.shape[0], dtype=np.float32)
-    cdef double [:] s1 = scaling
+    cdef float [:] s1 = scaling
     cdef float s2 = sigma
     cdef Py_ssize_t i
     cdef Py_ssize_t n_c2  = data2.shape[0]
