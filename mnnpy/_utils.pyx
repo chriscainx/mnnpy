@@ -84,7 +84,7 @@ cdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:] 
     free(d1)
     return (ref_quan - curproj) / l2_norm
 
-cpdef _adjust_shift_variance(data1, data2, correction, float sigma, n_jobs, var_subset=None):
+cpdef _adjust_shift_variance(data1, data2, correction, sigma, n_jobs, var_subset=None):
     if var_subset is not None:
         vect = correction[:, var_subset]
         data1 = data1[:, var_subset]
