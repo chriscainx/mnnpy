@@ -1,10 +1,10 @@
 from setuptools import setup
 from pathlib import Path
 from setuptools import Extension
-extm = Extension('_utils', 
-                 ['mnnpy/_utils.c'],
-                 extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
-                 extra_link_args=['-fopenmp'])
+extm = [Extension('_utils', 
+                  ['mnnpy/_utils.c'],
+                  extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
+                  extra_link_args=['-fopenmp'])]
 
 req_path = Path('requirements.txt')
 with req_path.open() as requirements:
