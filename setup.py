@@ -1,8 +1,11 @@
+from os import cpu_count
 from setuptools import setup
 from pathlib import Path
 from setuptools import Extension
+from Cython.Build import cythonize
+
 extm = [Extension('_utils', 
-                  ['mnnpy/_utils.c'],
+                  ['mnnpy/_utils.pyx'],
                   extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
                   extra_link_args=['-fopenmp'])]
 
@@ -31,5 +34,5 @@ setup(name='mnnpy',
       ],
       python_requires='>=3.4',
       py_modules=['irlb', 'mnn', 'utils'],
-      ext_modules=extm,
+      ext_modules=cythonize(extm),
       zip_safe=False)

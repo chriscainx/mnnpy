@@ -99,7 +99,7 @@ cpdef _adjust_shift_variance(data1, data2, correction, float sigma, n_jobs, var_
     cdef Py_ssize_t i
     cdef Py_ssize_t n_c2  = data2.shape[0]
     cdef int chunksize=int(n_c2/n_jobs) + 1
-    for i in prange(n_c2, nogil=True, chunksize=chunksize, schedule='static', num_threads=n_jobs):
+    for i in prange(n_c2, nogil=True, chunksize=chunksize, schedule='static'):
         s1[i] = _adjust_s_variance(da1, da2, da2[i], vec[i], sigma)
     scaling = np.fmax(scaling, 1).astype(np.float32)
     return correction * scaling[:, None]
