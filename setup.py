@@ -1,20 +1,10 @@
-from setuptools import setup, Extension
+from setuptools import setup
 from pathlib import Path
-
-ext_mod = [Extension('mnnpy._utils', 
-                     ['mnnpy/_utils.pyx'],
-                     extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
-                     extra_link_args=['-fopenmp'])]
-ext_mod_c = Extension('mnnpy._utils', 
-                      ['mnnpy/_utils.c'],
-                      extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
-                      extra_link_args=['-fopenmp'])
-
-try:
-    from Cython.Build import cythonize
-    extm = cythonize(ext_mod)
-except ImportError:
-    extm = ext_mod_c
+from setuptools import Extension
+extm = Extension('_utils', 
+                 ['mnnpy/_utils.c'],
+                 extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
+                 extra_link_args=['-fopenmp'])
 
 req_path = Path('requirements.txt')
 with req_path.open() as requirements:
