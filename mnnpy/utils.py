@@ -238,7 +238,7 @@ def get_so_paths(dir_name):
 
 
 try:
-    from ._utils import _adjust_s_variance as adjust_s_variance
+    from ._utils import _adjust_shift_variance as adjust_shift_variance
     #print('Cython module loaded!')
 except ImportError:
     print('Cython module _utils not initialized. Fallback to python.')

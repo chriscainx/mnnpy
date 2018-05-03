@@ -1,20 +1,26 @@
+from os import cpu_count
 from setuptools import setup
 from pathlib import Path
+from setuptools import Extension
 try:
     from Cython.Build import cythonize
-    extm = cythonize('mnnpy/_utils.pyx')
+    extm = cythonize([Extension('mnnpy._utils', 
+                      ['mnnpy/_utils.pyx'],
+                      extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
+                      extra_link_args=['-fopenmp'])])
 except ImportError:
-    from setuptools import Extension
-    extm = Extension('_utils', 
-                     ['mnnpy/_utils.c'],
-                     extra_compile_args = ["-O2", "-ffast-math", "-march=native"])
+    print('Building with c.')
+    extm = [Extension('mnnpy._utils', 
+            ['mnnpy/_utils.c'],
+            extra_compile_args = ['-O2', '-ffast-math', '-march=native', '-fopenmp'],
+            extra_link_args=['-fopenmp'])]
 
 req_path = Path('requirements.txt')
 with req_path.open() as requirements:
     requires = [l.strip() for l in requirements]
 
 setup(name='mnnpy',
-      version='0.1.8',
+      version='0.1.9',
       description='Mutual nearest neighbors correction in python.',
       long_description='Correcting batch effects in single-cell expression datasets using the mutual nearest neighbors method.',
       url='http://github.com/chriscainx/mnnpy',
