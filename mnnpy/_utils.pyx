@@ -1,4 +1,5 @@
 cimport cython
+from cython.parallel import prange
 from libc.stdlib cimport malloc, free, qsort
 from libc.math cimport exp, sqrt
 import numpy as np
@@ -8,7 +9,7 @@ cdef extern from "_utils.h":
 
 @cython.boundscheck(False)  # Deactivate bounds checking
 @cython.wraparound(False)   # Deactivate negative indexing.
-cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:] curcell, float [:] curvect, float sigma) nogil:
+cdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:] curcell, float [:] curvect, float sigma) nogil:
     cdef Py_ssize_t i, j
     cdef Py_ssize_t n_c1  = data1.shape[0]
     cdef Py_ssize_t n_c2  = data2.shape[0]
@@ -83,3 +84,22 @@ cpdef float _adjust_s_variance(float [:, :] data1, float [:, :] data2, float [:]
     free(d1)
     return (ref_quan - curproj) / l2_norm
 
+cpdef _adjust_shift_variance(data1, data2, correction, float sigma, n_jobs, var_subset=None):
+    if var_subset is not None:
+        vect = correction[:, var_subset]
+        data1 = data1[:, var_subset]
+        data2 = data2[:, var_subset]
+    else:
+        vect = correction
+    cdef float [:, :] da1 = data1
+    cdef float [:, :] da2 = data2
+    cdef float [:, :] vec = vect
+    scaling = np.zeros(data2.shape[0])
+    cdef float [:] s1 = scaling
+    cdef Py_ssize_t i
+    cdef Py_ssize_t n_c2  = data2.shape[0]
+    cdef int chunksize=int(n_c2/n_jobs) + 1
+    for i in prange(n_c2, nogil=True, chunksize=chunksize, schedule='static', num_threads=n_jobs):
+        s1[i] = _adjust_s_variance(da1, da2, da2[i], vec[i], sigma)
+    scaling = np.fmax(scaling, 1).astype(np.float32)
+    return correction * scaling[:, None]
