@@ -7,7 +7,7 @@ except ImportError:
     from setuptools import Extension
     extm = Extension('_utils', 
                      ['mnnpy/_utils.c'],
-                     extra_compile_args = ["-O3", "-ffast-math", "-march=native"])
+                     extra_compile_args = ["-O2", "-ffast-math", "-march=native"])
 
 req_path = Path('requirements.txt')
 with req_path.open() as requirements:
