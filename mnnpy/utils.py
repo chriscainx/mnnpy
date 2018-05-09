@@ -155,7 +155,7 @@ def subtract_bio(*spans, correction, var_subset=None):
         if var_subset is None:
             bio_mag = np.dot(correction, span)
         else:
-            bio_mag = np.dot(correction[:, var_subset], span[:, var_subset])
+            bio_mag = np.dot(correction[:, var_subset], span[var_subset, :])
         bio_comp = np.dot(bio_mag, span.T)
         correction -= bio_comp
     return correction
