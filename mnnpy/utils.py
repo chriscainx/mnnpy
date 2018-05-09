@@ -144,7 +144,7 @@ def get_bio_span(exprs, ndim, svd_mode, var_subset=None, **kwargs):
     singular = svd_internal(centred.T, ndim, svd_mode, **kwargs)
     if var_subset is None:
         return singular[0]
-    output = np.zeros((exprs.shape[1], ndim), dtype=float32)
+    output = np.zeros((exprs.shape[1], ndim), dtype=np.float32)
     output[keeper,] = singular[0]
     output[subsetter,] = np.divide(np.dot(leftovers, singular[2]), singular[1][range(ndim)])
     return output
