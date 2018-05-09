@@ -95,17 +95,16 @@ def compute_correction(data1, data2, mnn1, mnn2, data2_or_raw2, sigma):
 
 
 def svd_internal(mat, nu, svd_mode, **kwargs):
+    mat = mat.astype(np.float64)
     if svd_mode == 'svd':
         svd_out = rsvd(mat, eps_or_k=nu, rand=False)
-        return svd_out[0], svd_out[1], svd_out[2]
-    if svd_mode == 'rsvd':
+    elif svd_mode == 'rsvd':
         svd_out = rsvd(mat, eps_or_k=nu)
-        return svd_out[0], svd_out[1], svd_out[2]
-    if svd_mode == 'irlb':
+    elif svd_mode == 'irlb':
         svd_out = lanczos(mat, nu, **kwargs)
-        return svd_out[0], svd_out[1], svd_out[2]
-    raise ValueError('The svd_mode must be one of \'rsvd\', \'svd\', \'irlb\'.')
-
+    else:
+        raise ValueError('The svd_mode must be one of \'rsvd\', \'svd\', \'irlb\'.')
+    return svd_out[0].astype(np.float32), svd_out[1].astype(np.float32), svd_out[2].astype(np.float32)
 
 def find_shared_subspace(mat1, mat2, sin_thres=0.05, cos_thres=1 / math.sqrt(2), mat2_vec=False,
                          assume_orthonomal=False, get_angle=True):
