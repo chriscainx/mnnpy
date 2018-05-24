@@ -5,7 +5,9 @@ from scipy.spatial import cKDTree
 from scipy.linalg import orth
 from scipy.linalg.interpolative import svd as rsvd
 from numba import jit, float32, int32, int8
+from . import settings
 from .irlb import lanczos
+
 
 
 @jit(float32[:](float32[:, :]), nogil=True)
@@ -46,21 +48,33 @@ def transform_input_data(datas, cos_norm_in, cos_norm_out, var_index, var_subset
     else:
         var_sub_index = None
         in_batches = datas
-    with Pool(n_jobs) as p_n:
-        in_scaling = p_n.map(l2_norm, in_batches)
+    if settings.normalization == 'parallel':
+        with Pool(n_jobs) as p_n:
+            in_scaling = p_n.map(l2_norm, in_batches)
+    else:
+        in_scaling = [l2_norm(b) for b in in_batches]
     in_scaling = [scaling[:, None] for scaling in in_scaling]
     if cos_norm_in:
-        with Pool(n_jobs) as p_n:
-            in_batches = p_n.starmap(scale_rows, zip(in_batches, in_scaling))
+        if settings.normalization == 'parallel':
+            with Pool(n_jobs) as p_n:
+                in_batches = p_n.starmap(scale_rows, zip(in_batches, in_scaling))
+        else:
+            in_batches = [scale_rows(a,b) for (a,b) in zip(in_batches, in_scaling)]
     if cos_norm_out:
         if not cos_norm_in:
-            with Pool(n_jobs) as p_n:
-                out_batches = p_n.starmap(scale_rows, zip(datas, in_scaling))
+            if settings.normalization == 'parallel':
+                with Pool(n_jobs) as p_n:
+                    out_batches = p_n.starmap(scale_rows, zip(datas, in_scaling))
+            else:
+                out_batches = [scale_rows(a,b) for (a,b) in zip(datas, in_scaling)]
         else:
-            with Pool(n_jobs) as p_n:
-                out_scaling = p_n.map(l2_norm, datas)
-                out_scaling = [scaling[:, None] for scaling in out_scaling]
-                out_batches = p_n.starmap(scale_rows, zip(datas, out_scaling))
+            if settings.normalization == 'parallel':
+                with Pool(n_jobs) as p_n:
+                    out_scaling = p_n.map(l2_norm, datas)
+            else:
+                out_scaling = [l2_norm(d) for d in datas]
+            out_scaling = [scaling[:, None] for scaling in out_scaling]
+            out_batches = p_n.starmap(scale_rows, zip(datas, out_scaling))
     return in_batches, out_batches, var_sub_index, same_set
 
 
