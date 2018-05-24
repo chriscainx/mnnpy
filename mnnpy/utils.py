@@ -74,7 +74,11 @@ def transform_input_data(datas, cos_norm_in, cos_norm_out, var_index, var_subset
             else:
                 out_scaling = [l2_norm(d) for d in datas]
             out_scaling = [scaling[:, None] for scaling in out_scaling]
-            out_batches = p_n.starmap(scale_rows, zip(datas, out_scaling))
+            if settings.normalization == 'parallel':
+                with Pool(n_jobs) as p_n:
+                    out_batches = p_n.starmap(scale_rows, zip(datas, out_scaling))
+            else:
+                out_batches = [scale_rows(a,b) for (a,b) in zip(datas, out_scaling)]
     return in_batches, out_batches, var_sub_index, same_set
 
 
