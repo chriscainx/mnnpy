@@ -4,6 +4,7 @@ from multiprocessing import Pool
 from scipy.spatial import cKDTree
 from scipy.linalg import orth
 from scipy.linalg.interpolative import svd as rsvd
+from scipy.sparse import issparse
 from numba import jit, float32, int32, int8
 from . import settings
 from .irlb import lanczos
@@ -30,7 +31,7 @@ def kdist(m, n):
 
 
 def transform_input_data(datas, cos_norm_in, cos_norm_out, var_index, var_subset, n_jobs):
-    datas = [data.toarray().astype(np.float32) for data in datas]
+    datas = [data.toarray().astype(np.float32) if issparse(data) else data.astype(np.float32) for data in datas]
     if var_index is None:
         raise ValueError('Argument var_index not provideed.')
     if var_subset is not None:
