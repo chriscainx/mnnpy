@@ -30,7 +30,7 @@ def kdist(m, n):
 
 
 def transform_input_data(datas, cos_norm_in, cos_norm_out, var_index, var_subset, n_jobs):
-    datas = [data.astype(np.float32) for data in datas]
+    datas = [data.toarray().astype(np.float32) for data in datas]
     if var_index is None:
         raise ValueError('Argument var_index not provideed.')
     if var_subset is not None:
