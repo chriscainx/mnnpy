@@ -8,6 +8,7 @@ Batch effect correction by matching mutual nearest neighbors [(Haghverdi et al, 
 This project is a python implementation of the MNN correct algorithm which takes advantage of python's extendability and hackability. It seamlessly integrates with the [scanpy](https://github.com/theislab/scanpy) framework and has multicore support in its bones. 
 
 ## Status
+- ver 0.1.9.4: added a fix for sparse matrix normalization. Thank @zacharylau10
 - ver 0.1.9.3: fixed potential multiprocessing bug. set `mnnpy.settings.normalization = 'seq'` to perform normalization sequentially and avoid strange multiprocessing problems. Thank @LucasESBS and @julien-kann
 - ver 0.1.9.2: fixed an error in subtract_bio_span. Thank @dylkot
 - ver 0.1.9: replacing python's notorious multiprocessing with openmp-based multithreading. Reduced **huge** memory overhead, saving both (a lot of) time and (a lot of) memory. **PLEASE UPDATE TO THIS VERSION** 
