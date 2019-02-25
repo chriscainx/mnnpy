@@ -8,6 +8,7 @@ Batch effect correction by matching mutual nearest neighbors [(Haghverdi et al, 
 This project is a python implementation of the MNN correct algorithm which takes advantage of python's extendability and hackability. It seamlessly integrates with the [scanpy](https://github.com/theislab/scanpy) framework and has multicore support in its bones. 
 
 ## Status
+- ver 0.1.9.5: corrected a bug with cos_norm. Thank @LisaSikkema
 - in the latest version of SCRAN, the default value of sigma is now 0.1. We are still keeping the 1.0 in mnnpy due to some reports that 1.0 is better. You are recommended to try out this new setting and find what’s best for your data. Thank @yueqiw
 - ver 0.1.9.4: added a fix for sparse matrix normalization. Thank @zacharylau10
 - ver 0.1.9.3: fixed potential multiprocessing bug. set `mnnpy.settings.normalization = 'seq'` to perform normalization sequentially and avoid strange multiprocessing problems. Thank @LucasESBS and @julien-kann
