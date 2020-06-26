@@ -2,4 +2,4 @@ numpy
 scipy
 anndata
 pandas
-numba
+numba==0.45
