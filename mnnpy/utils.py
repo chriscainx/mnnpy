@@ -11,7 +11,8 @@ from .irlb import lanczos
 
 
 
-@jit(float32[:](float32[:, :]), nogil=True)
+# Numba does not support axis kwarg for norm => no point in applying @jit here.
+#@jit(float32[:](float32[:, :]), nogil=True)
 def l2_norm(in_matrix):
     return np.linalg.norm(x=in_matrix, axis=1)
 
@@ -85,7 +86,8 @@ def transform_input_data(datas, cos_norm_in, cos_norm_out, var_index, var_subset
     return in_batches, out_batches, var_sub_index, same_set
 
 
-@jit((float32[:, :], float32[:, :], int8, int8, int8))
+# forceobj=True due to: Untyped global name 'cKDTree': cannot determine Numba type of <class 'type'>
+@jit((float32[:, :], float32[:, :], int8, int8, int8), forceobj=True)
 def find_mutual_nn(data1, data2, k1, k2, n_jobs):
     k_index_1 = cKDTree(data1).query(x=data2, k=k1, n_jobs=n_jobs)[1]
     k_index_2 = cKDTree(data2).query(x=data1, k=k2, n_jobs=n_jobs)[1]
@@ -99,7 +101,8 @@ def find_mutual_nn(data1, data2, k1, k2, n_jobs):
     return mutual_1, mutual_2
 
 
-@jit(float32[:, :](float32[:, :], float32[:, :], int32[:], int32[:], float32[:, :], float32))
+# forceobj=True due to: TypeError: np_unique() got an unexpected keyword argument 'return_counts'
+@jit(float32[:, :](float32[:, :], float32[:, :], int32[:], int32[:], float32[:, :], float32), forceobj=True)
 def compute_correction(data1, data2, mnn1, mnn2, data2_or_raw2, sigma):
     vect = data1[mnn1] - data2[mnn2]
     mnn_index, mnn_count = np.unique(mnn2, return_counts=True)
@@ -196,6 +199,14 @@ def adjust_shift_variance(data1, data2, correction, sigma, n_jobs, var_subset=No
     return correction * scaling[:, None]
 
 
+@jit(float32(float32[:], float32[:], float32[:]), nopython=True)
+def sq_dist_to_line(ref, grad, point):
+    working = ref - point
+    scale = np.dot(working, grad)
+    working = working - grad * scale
+    return np.dot(working, working)
+
+
 @jit(float32(float32[:, :], float32[:, :], float32[:], float32[:], float32), nogil=True)
 def adjust_s_variance(data1, data2, curcell, curvect, sigma):
     distance1 = np.zeros((data1.shape[0], 2), dtype=np.float32)
@@ -230,14 +241,6 @@ def adjust_s_variance(data1, data2, curcell, curvect, sigma):
             ref_quan = i[0]
             break
     return (ref_quan - curproj) / l2_norm
-
-
-@jit(float32(float32[:], float32[:], float32[:]), nopython=True)
-def sq_dist_to_line(ref, grad, point):
-    working = ref - point
-    scale = np.dot(working, grad)
-    working = working - grad * scale
-    return np.dot(working, working)
 
 
 class adjust_v_worker(object):
