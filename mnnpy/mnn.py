@@ -10,7 +10,7 @@ from .utils import adjust_shift_variance
 
 
 def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', index_unique='-',
-                batch_categories=None, k=20, sigma=1., cos_norm_in=True, cos_norm_out=True,
+                batch_categories=None, k1=20, k2=20, sigma=1., cos_norm_in=True, cos_norm_out=True,
                 svd_dim=None, var_adj=True, compute_angle=False, mnn_order=None, svd_mode='rsvd',
                 do_concatenate=True, save_raw=False, n_jobs=None, **kwargs):
     """
@@ -120,7 +120,7 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
         if var_subset is not None and set(adata_vars) == set(var_subset):
             var_subset = None
         corrected = mnn_correct(*(adata.X for adata in datas), var_index=adata_vars,
-                                var_subset=var_subset, k=k, sigma=sigma, cos_norm_in=cos_norm_in,
+                                var_subset=var_subset, k1=k1, k2=k2, sigma=sigma, cos_norm_in=cos_norm_in,
                                 cos_norm_out=cos_norm_out, svd_dim=svd_dim, var_adj=var_adj,
                                 compute_angle=compute_angle, mnn_order=mnn_order,
                                 svd_mode=svd_mode, do_concatenate=do_concatenate, **kwargs)
@@ -175,7 +175,7 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
         if not same_set:
             new_batch_out = out_batches[target]
         print('  Looking for MNNs...')
-        mnn_ref, mnn_new = find_mutual_nn(data1=ref_batch_in, data2=new_batch_in, k1=k, k2=k,
+        mnn_ref, mnn_new = find_mutual_nn(data1=ref_batch_in, data2=new_batch_in, k1=k1, k2=k2,
                                           n_jobs=n_jobs)
         print('  Computing correction vectors...')
         correction_in = compute_correction(ref_batch_in, new_batch_in, mnn_ref, mnn_new,
