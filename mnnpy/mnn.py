@@ -8,7 +8,7 @@ from .utils import transform_input_data, find_mutual_nn, compute_correction
 from .utils import svd_internal, find_shared_subspace, get_bio_span, subtract_bio
 from .utils import adjust_shift_variance
 
-
+print("new")
 def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', index_unique='-',
                 batch_categories=None, k1=20, k2=20, sigma=1., cos_norm_in=True, cos_norm_out=True,
                 svd_dim=None, var_adj=True, compute_angle=False, mnn_order=None, svd_mode='rsvd',
@@ -175,9 +175,12 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
         if not same_set:
             new_batch_out = out_batches[target]
         print('  Looking for MNNs...')
-        mnn_ref, mnn_new = find_mutual_nn(data1=ref_batch_in, data2=new_batch_in, k1=k1, k2=k2,
+        mnn = find_mutual_nn(data1=ref_batch_in, data2=new_batch_in, k1=k1, k2=k2,
                                           n_jobs=n_jobs)
         print('  Computing correction vectors...')
+        val = np.array(mnn)
+        mnn_ref = val[:,0]
+        mnn_new = val[:,1]
         correction_in = compute_correction(ref_batch_in, new_batch_in, mnn_ref, mnn_new,
                                            new_batch_in, sigma)
         if not same_set:
