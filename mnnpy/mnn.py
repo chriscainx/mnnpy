@@ -4,11 +4,198 @@ from functools import partial
 import numpy as np
 from anndata import AnnData
 from pandas import DataFrame
+import pandas as pd
 from .utils import transform_input_data, find_mutual_nn, compute_correction
 from .utils import svd_internal, find_shared_subspace, get_bio_span, subtract_bio
-from .utils import adjust_shift_variance
+from .utils import adjust_shift_variance, l2_norm, scale_rows
+from scipy.sparse import issparse
+from scipy.spatial import cKDTree
 
-print("new")
+###############################################################################
+##################### Marioni MNN Alignment ###################################
+###############################################################################
+
+def marioniCorrect(ref_mat, targ_mat, k1=20, k2=20, fk=20, ndist=3, var_index=None, var_subset=None, n_jobs=None):
+  """marioniCorrect is a function that corrects for batch effects using the Marioni method.
+
+  Args:
+    ref_mat (pd.Dataframe): matrix of samples by genes of cPC corrected data that serves as the reference data in the MNN alignment.
+      In the standard Celligner pipeline this the cell line data.
+    targ_mat matrix of samples by genes of cPC corrected data that is corrected in the MNN alignment and projected onto the reference data.
+      In the standard Celligner pipeline this the tumor data.
+    mnn_kwargs (dict): args to mnnCorrect
+    k1 (int): number of nearest neighbors to use for the first batch
+    k2 (int): number of nearest neighbors to use for the second batch
+    fk (int): number of nearest neighbors to use for the first batch
+    ndist (int): number of nearest neighbors to use for the first batch
+    var_index (pd.Series): index of variables to use for the first batch
+    var_subset (list): list of variables to use for the first batch
+    n_jobs (int): number of jobs to use for parallelization
+
+  Returns:
+    pd.Dataframe: corrected dataframe
+  """
+  if n_jobs is None:
+    n_jobs = cpu_count()
+  n_cols = ref_mat.shape[1]
+  if len(var_index) != n_cols:
+    raise ValueError('The number of vars is not equal to the length of var_index.')
+  if targ_mat.shape[1] != n_cols:
+    raise ValueError('The input matrices have inconsistent number of columns.')
+  
+  if var_subset is not None:
+    subref_mat = ref_mat.loc[:, var_subset].values
+    subtarg_mat = targ_mat.loc[:, var_subset].values
+  else:
+    subref_mat = ref_mat.values
+    subtarg_mat = targ_mat.values
+
+  print('Performing cosine normalization...')
+  in_batches = _transform_input_data(subref_mat, subtarg_mat, 
+    cos_norm_in=True, cos_norm_out=True, n_jobs=n_jobs)
+  print('  Looking for MNNs...')
+  subref_mat, subtarg_mat = in_batches
+  del in_batches
+
+  mnn_pairs = find_mutual_nn(data1=subref_mat, data2=subtarg_mat, k1=k1, k2=k2, n_jobs=n_jobs)
+  del subref_mat, subtarg_mat
+  mnn_ref, mnn_targ = np.array(mnn_pairs).T
+
+  # compute the overall batch vector
+  corvec, _ = _averageCorrection(ref_mat.values, mnn_ref, targ_mat.values, mnn_targ)
+  overall_batch = corvec.mean(axis=0)
+
+  # remove variation along the overall batch vector
+  ref_mat = _centerAlongBatchVector(ref_mat.values, overall_batch)
+  targ = _centerAlongBatchVector(targ_mat.values, overall_batch)
+
+  # recompute correction vectors and apply them
+  re_ave_out, npairs = _averageCorrection(ref_mat, mnn_ref, targ, mnn_targ)
+  # targ_mat = _tricubeWeightedCorrection(targ_mat, re_ave_out.T, npairs, k=fk, ndist=ndist, n_jobs=n_jobs)
+  distances, index = cKDTree(np.take(targ, npairs, 0)[:,var_subset]).query(
+    x=targ[:, var_subset],
+    k=min(fk, len(npairs)),
+    n_jobs=n_jobs)
+  targ_mat = pd.DataFrame(data=targ, columns=targ_mat.columns, index=targ_mat.index)
+  targ_mat += _compute_tricube_average(re_ave_out, index, distances, ndist=ndist)
+  return targ_mat, mnn_pairs
+
+#@jit((float32[:, :], float32[:, :], int8, int8, int8))
+def find_mutual_nn(data1, data2, k1, k2, n_jobs):
+  """find_mutual_nn finds the mutual nearest neighbors between two sets of data.
+
+  Args:
+      data1 ([type]): [description]
+      data2 ([type]): [description]
+      k1 ([type]): [description]
+      k2 ([type]): [description]
+      n_jobs ([type]): [description]
+
+  Returns:
+      [type]: [description]
+  """
+  k_index_1 = cKDTree(data1).query(x=data2, k=k1, n_jobs=n_jobs)[1]
+  k_index_2 = cKDTree(data2).query(x=data1, k=k2, n_jobs=n_jobs)[1]
+  mutuale = []
+  for index_2, val in enumerate(k_index_1):
+    for index_1 in val:
+      if index_2 in k_index_2[index_1]:
+        mutuale.append((index_1, index_2))
+  return mutuale
+
+def _transform_input_data(*datas, cos_norm_in, cos_norm_out, n_jobs):
+  """_transform_input_data transforms input data to be centered and normalized.
+
+  Args:
+      cos_norm_in ([type]): [description]
+      cos_norm_out ([type]): [description]
+      n_jobs ([type]): [description]
+
+  Returns:
+      [type]: [description]
+  """
+  datas = [data.toarray().astype(np.float32) if issparse(data) else data.astype(np.float32) for data in datas]
+  same_set = cos_norm_in == cos_norm_out
+  in_batches = datas
+  with Pool(n_jobs) as p_n:
+    in_scaling = p_n.map(l2_norm, in_batches)
+  in_scaling = [scaling[:, None] for scaling in in_scaling]
+  if cos_norm_in:
+    with Pool(n_jobs) as p_n:
+      in_batches = p_n.starmap(scale_rows, zip(in_batches, in_scaling))
+  return in_batches
+
+def _averageCorrection(refdata, mnn1, curdata, mnn2):
+  """_averageCorrection computes correction vectors for each MNN pair, and then averages them for each MNN-involved cell in the second batch.
+
+  Args:
+      refdata (pandas.DataFrame): matrix of samples by genes of cPC corrected data that serves as the reference data in the MNN alignment.
+      mnn1 (list): mnn1 pairs
+      curdata (pandas.DataFrame): matrix of samples by genes of cPC corrected data that is corrected in the MNN alignment and projected onto the reference data.
+      mnn2 (list): mnn2 pairs
+
+  Returns:
+      dict: correction vector and pairs
+  """
+  npairs = pd.Series(mnn2).value_counts()
+  corvec = np.take(refdata, mnn1, 0) - np.take(curdata, mnn2, 0)
+  cor = np.zeros((corvec.shape[1], len(npairs)))
+  mnn2 = np.array(mnn2)
+  for i, (j, v) in enumerate(npairs.iteritems()):
+    cor[:,i] = corvec[mnn2==j].mean(0)/v
+  return cor.T, npairs.index.astype(int)
+
+def _centerAlongBatchVector(mat, batch_vec):
+  """_centerAlongBatchVector - Projecting along the batch vector, and shifting all samples to the center within each batch.
+
+  Args:
+      mat (pandas.DataFrame): matrix of samples by genes
+      batch_vec (pandas.Series): batch vector
+
+  Returns:
+      pandas.DataFrame: corrected matrix
+  """
+  batch_vec = batch_vec/np.sqrt(np.sum(batch_vec**2))
+  batch_loc = np.dot(mat, batch_vec)
+  central_loc = np.mean(batch_loc)
+  mat = mat + np.outer(central_loc - batch_loc, batch_vec)
+  return mat
+
+def _compute_tricube_average(vals, indices, distances, bandwidth=None, ndist=3):
+  """_compute_tricube_average - Centralized function to compute tricube averages.
+
+  Args:
+      vals (pandas.DataFrame): correction vector
+      indices (pandas.DataFrame): nxk matrix for the nearest neighbor indice
+      distances (pandas.DataFrame): nxk matrix for the nearest neighbor Euclidea distances
+      bandwidth (float): Is set at 'ndist' times the median distance, if not specified.
+      ndist (int, optional): By default is MNN_NDIST.
+
+  Returns:
+      [type]: [description]
+  """
+  if bandwidth is None:
+    middle = int(np.ceil(indices.shape[1]/2))
+    mid_dist = distances[:,middle]
+    bandwidth = mid_dist * ndist
+  bandwidth = np.maximum(1e-8, bandwidth)
+
+  rel_dist = distances.T/bandwidth
+  # don't use pmin(), as this destroys dimensions.
+  rel_dist[rel_dist > 1] = 1
+  tricube = (1 - rel_dist**3)**3
+  weight = tricube/np.sum(tricube, axis=0)
+  del rel_dist, tricube, bandwidth
+  vals = vals.T
+  output = np.zeros((vals.shape[0], indices.shape[0]))
+  for kdx in range(indices.shape[1]):
+    output += vals[:,indices[:,kdx]] * weight[kdx]
+  return output.T
+
+###############################################################################
+##################### Regular MNN Alignment ###################################
+###############################################################################
+
 def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', index_unique='-',
                 batch_categories=None, k1=20, k2=20, sigma=1., cos_norm_in=True, cos_norm_out=True,
                 svd_dim=None, var_adj=True, compute_angle=False, mnn_order=None, svd_mode='rsvd',
@@ -234,6 +421,16 @@ def mnn_correct(*datas, var_index=None, var_subset=None, batch_key='batch', inde
              'ref cell': mnn_ref,
              'original batch': [original_batch[mnn] for mnn in mnn_ref]}))
         original_batch += [target] * new_batch_in.shape[0]
+    print('MNN correction complete. Gathering output...')
+    reflow_order = [0] * n_batch
+    for i in range(n_batch):
+        reflow_order[mnn_order[i]] = i
+    results_ = [np.array(res_container[i]) for i in reflow_order]
+    mnn_list_ = [mnn_container[i] for i in reflow_order]
+    angle_list_ = [angle_container[i] for i in reflow_order] if compute_angle else None
+    if do_concatenate:
+        results_ = np.concatenate(tuple(results_))
+    return results_, mnn_list_, angle_list_
     print('MNN correction complete. Gathering output...')
     reflow_order = [0] * n_batch
     for i in range(n_batch):
