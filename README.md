@@ -1,7 +1,23 @@
-[![Build Status](https://travis-ci.org/chriscainx/mnnpy.svg?branch=master)](https://travis-ci.org/chriscainx/mnnpy) [![Downloads](http://pepy.tech/badge/mnnpy)](http://pepy.tech/count/mnnpy)
-# mnnpy - MNN-correct in python!
+# M-mnnpy - MNN-correct in python + Marioni's Lab version as a bonus!
 
-An implementation of MNN correct in python featuring low memory usage, full multicore support and compatibility with the [scanpy](https://github.com/theislab/scanpy) framework.
+An implementation of MNN correct in python featuring low memory usage, full multicore support and an additional implementation of MNN from the Marioni lab (modified or marioni MNN)
+
+just use the `marioniCorrect()` function instead
+
+you can still use the regular MNN with `mnn_correct()`
+
+## Install
+
+Mnnpy is available on PyPI. You can install with `pip install mmnnpy`.
+
+If you want the developing version, do:
+```
+git clone https://github.com/jkobject/mnnpy.git
+cd mnpy
+pip install .
+```
+
+## Below is the readme from the original MNN tool I forked (it is still usable on this version and even more robust!)
 
 Batch effect correction by matching mutual nearest neighbors [(Haghverdi et al, 2018)](https://www.nature.com/articles/nbt.4091) has been implemented as a function 'mnnCorrect' in the R package [scran](https://bioconductor.org/packages/release/bioc/html/scran.html). Sadly it's extremely slow for big datasets and doesn't make full use of the parallel architecture of modern CPUs.
 
@@ -38,23 +54,12 @@ Finishes correcting ~50000 cells/19 batches * ~30000 genes in ~12h on a 16 core 
 - Compatible with scanpy
 - Full verbosity
 
-## Install
-
-Mnnpy is available on PyPI. You can install with `pip install mnnpy`.
-
-If you want the developing version, do:
-```
-git clone https://github.com/chriscainx/mnnpy.git
-cd mnnpy
-pip install .
-```
-
 ## Usage
 
 Mnnpy takes matrices or AnnData objects. For example:
 ```python
 import scanpy.api as sc
-import mnnpy
+import mmnnpy
 
 sample1 = sc.read("Sample1.h5ad")
 sample2 = sc.read("Sample2.h5ad")
