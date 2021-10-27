@@ -71,7 +71,6 @@ def marioniCorrect(ref_mat, targ_mat, k1=20, k2=20, fk=5, ndist=3, var_index=Non
   idx=np.argsort(mnn_ref)
   mnn_ref=mnn_ref[idx]
   mnn_targ=mnn_targ[idx]
-  #import ipdb; ipdb.set_trace()
 
   # compute the overall batch vector
   corvec, _ = _averageCorrection(ref_mat.values, mnn_ref, targ_mat.values, mnn_targ)
@@ -196,7 +195,7 @@ def _computeTricubeWeightedAvg(vals, indices, distances, bandwidth=None, ndist=3
   tricube = (1 - rel_dist**3)**3
   weight = tricube/np.sum(tricube, axis=0)
   del rel_dist, tricube, bandwidth
-  #import ipdb; ipdb.set_trace()
+
   output = np.zeros((indices.shape[0], vals.shape[1]))
   for kdx in range(indices.shape[1]):
       output += np.einsum("ij...,i...->ij...", vals[indices[:,kdx]], weight[kdx])
