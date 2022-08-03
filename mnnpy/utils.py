@@ -87,8 +87,8 @@ def transform_input_data(datas, cos_norm_in, cos_norm_out, var_index, var_subset
 
 @jit((float32[:, :], float32[:, :], int8, int8, int8))
 def find_mutual_nn(data1, data2, k1, k2, n_jobs):
-    k_index_1 = cKDTree(data1).query(x=data2, k=k1, n_jobs=n_jobs)[1]
-    k_index_2 = cKDTree(data2).query(x=data1, k=k2, n_jobs=n_jobs)[1]
+    k_index_1 = cKDTree(data1).query(x=data2, k=k1, workers=n_jobs)[1]
+    k_index_2 = cKDTree(data2).query(x=data1, k=k2, workers=n_jobs)[1]
     mutual_1 = []
     mutual_2 = []
     for index_2 in range(data2.shape[0]):
