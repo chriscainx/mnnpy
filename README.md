@@ -49,6 +49,23 @@ cd mnnpy
 pip install .
 ```
 
+Note: It is possible that simply running `pip install .` or `pip install mnnpy` may not work to install mnnpy, depending on which C compiler is being used on the system. If this occurs, and you are running a Linux/MacOS system, run this instead:
+```
+brew install gcc@8
+export CC=/usr/local/Cellar/gcc@8/8.4.0/bin/gcc-8
+pip install mnnpy
+unset CC
+```
+or if you'd like the developing version, do:
+```
+brew install gcc@8
+export CC=/usr/local/Cellar/gcc@8/8.4.0/bin/gcc-8
+git clone https://github.com/chriscainx/mnnpy.git
+cd mnnpy
+pip install .
+unset CC
+```
+
 ## Usage
 
 Mnnpy takes matrices or AnnData objects. For example:
